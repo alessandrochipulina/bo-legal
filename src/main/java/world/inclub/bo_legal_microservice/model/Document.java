@@ -26,6 +26,7 @@ public class Document {
     private Integer documentTypeId;
     private String documentTypeName;
     private String documentKey;
+    private String documentTargetKey;
     private String userId;
     private String userDate;
     private String userRealName;

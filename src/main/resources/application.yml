@@ -3,3 +3,14 @@ spring:
     username: postgres
     password: postgres
     url: r2dbc:postgresql://localhost:5432/postgres
+app:
+  status:
+    pendiente: 1
+    aprobado: 2
+    rechazado: 3
+    atendido: 4
+    recojo: 5
+    proceso: 6
+    custom: 7
+  retry:
+    max-attempts: 5
