@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import world.inclub.bo_legal_microservice.config.AppProperties;
 import world.inclub.bo_legal_microservice.logic.*;
 import world.inclub.bo_legal_microservice.model.*;
 import world.inclub.bo_legal_microservice.repository.*;
@@ -29,19 +30,22 @@ public class DocumentController {
     private DocumentStatusRepository dsr;
     @Autowired
     private DocumentUtil du;
+    @Autowired
+    private AppProperties app;
 
     @PostMapping("/add/solicitud/{documentTypeId}")
     Mono<ResponseEntity<String>> addDocumentSolicitud(
         @RequestBody Document doc, 
         @PathVariable Integer documentTypeId)
     {        
-        if( doc.getDocumentTypeId() > 2) return Mono.error(new IllegalArgumentException("Tipo de documento no permitido"));
+        if( documentTypeId >= app.getType().getVoucherrectificacion() ) return Mono.error(new IllegalArgumentException("Tipo de documento no permitido"));
 
         return dr.findByDocumentKey(doc.getDocumentKey()).hasElement().flatMap( existe -> {
             if( existe ) return Mono.error(new IllegalArgumentException("Documento ya existe"));
             else {
                 // Crear nuevo documento en estado pendiente        
                 Document nuevoDoc = du.newDocument(doc);
+                nuevoDoc.setDocumentTypeId(documentTypeId);
                 // Crear entrada de historial
                 DocumentHistory dh = du.saveSystemHistory( doc.getDocumentKey(), "Nuevo Voucher de Solicitud de Legalización",1, doc.getUserPanelId());
                 // Grabar los datos

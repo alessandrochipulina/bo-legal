@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class AppProperties {
     private Status status;
+    private Type type;
     
     @Data
     @NoArgsConstructor
@@ -25,5 +26,16 @@ public class AppProperties {
         private Integer recojo;
         private Integer proceso;
         private Integer custom;
+    }   
+    
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class Type {
+        private Integer vouchercertificado;
+        private Integer vouchercontrato;
+        private Integer voucherrectificacion;
+        private Integer solicitudcertificado;
+        private Integer solicitudcontrato;        
     }    
 }

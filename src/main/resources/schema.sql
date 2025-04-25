@@ -57,6 +57,7 @@ CREATE TABLE "core"."document" (
   document_type_id integer,  
   document_type_name varchar,
   document_key varchar NOT NULL,
+  document_target_key varchar NULL,
   user_id varchar NOT NULL,
   user_date varchar,
   user_real_name varchar,
@@ -69,3 +70,4 @@ CREATE TABLE "core"."document" (
   price float NOT NULL DEFAULT 0
 );
 
+-- SELECT core.document.id, core.document.image_url, core.document.document_url, core.document.status, core.document.created_at, core.document.modified_at, core.document.user_panel_id, core.document.document_type_id, core.document.document_type_name, core.document.document_key, core.document.document_target_key, core.document.user_id, core.document.user_date, core.document.user_real_name, core.document.user_dni, core.document.user_local, core.document.user_local_type, core.document.legalization_type, core.document.portfolio_name, core.document.price FROM core.document WHERE core.document.document_key = 'ertr'
