@@ -1,2 +1,1 @@
-# bo-legal
-Sprint WebFlux InClub Modulo Legal
+# bo-legal-microservice
