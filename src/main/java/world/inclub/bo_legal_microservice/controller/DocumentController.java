@@ -1,7 +1,6 @@
 package world.inclub.bo_legal_microservice.controller;
 
 import java.time.LocalDateTime;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -58,21 +57,28 @@ public class DocumentController {
     Mono<ResponseEntity<String>> addDocumentRectificacion(
         @RequestBody Document doc)
     {
-        return dr.findByDocumentKey(doc.getDocumentTargetKey())            
-        .switchIfEmpty(Mono.error(new IllegalArgumentException("El documento referenciado no existe")))
-        .flatMap( target -> {
-            // Crear nuevo documento en estado pendiente        
-            if( target.getDocumentTypeId() <= 100) Mono.error(new IllegalArgumentException("El documento referenciado no es del tipo requerido"));
-            if( target.getStatus() <= 4) Mono.error(new IllegalArgumentException("El estado del documento referenciado no permite rectificar el lugar de recojo"));
-            // Crea un nuevo documento
-            doc.setDocumentTypeId(50);
-            Document voucher = du.newDocument(doc);
-            // Crear entrada de historial
-            DocumentHistory dh = du.saveSystemHistory( doc.getDocumentKey(), "Nuevo Voucher de Rectificación de Lugar de Recojo",1, doc.getUserPanelId());            
+        return 
+        dr.findByExistsRectificacionPendingKey(doc.getDocumentTargetKey())
+        .flatMap( existe -> {
+            if( existe ) return Mono.just( ResponseEntity.badRequest().body("La solicitud de la referencia ya cuenta con un voucher en estado pendiente") );
+            return
+            dr.findByDocumentKeyProcess(doc.getDocumentTargetKey())            
+            .switchIfEmpty(Mono.error(new IllegalArgumentException("La solicitud referenciada no existe")))
+            .flatMap( target -> {
+                // Crear nuevo documento en estado pendiente        
+                if( target.getDocumentTypeId() < app.getType().getSolicitudcertificado()) Mono.error(new IllegalArgumentException("La solicitud referenciada no es del tipo requerido"));
+                if( target.getStatus() <= app.getStatus().getAtendido()) Mono.error(new IllegalArgumentException("El estado de la solicitud referenciada no permite rectificar el lugar de recojo"));
+                // Crea un nuevo documento
+                doc.setDocumentTypeId(app.getType().getVoucherrectificacion());
+                Document voucher = du.newDocument(doc);
+                // Crear entrada de historial
+                DocumentHistory dh = du.saveSystemHistory( doc.getDocumentKey(), "Nuevo Voucher de Rectificación de Lugar de Recojo",app.getStatus().getPendiente(), doc.getUserPanelId());
 
-            return dr.save(voucher).then(dhr.save(dh)).thenReturn(ResponseEntity.ok("Se ha creado el voucher (rectificacion) " + doc.getDocumentKey() + " para " + doc.getDocumentTargetKey() + " con éxito"));
-        })
-        .onErrorResume(e -> Mono.just(ResponseEntity.badRequest().body(e.getMessage())));              
+                return
+                dr.save(voucher).then(dhr.save(dh)).thenReturn(ResponseEntity.ok("Se ha creado el voucher (rectificacion) " + doc.getDocumentKey() + " para " + doc.getDocumentTargetKey() + " con éxito"));
+            })
+            .onErrorResume(e -> Mono.just(ResponseEntity.badRequest().body(e.getMessage())));            
+        });
     }
 
     @GetMapping("/all")
@@ -99,7 +105,7 @@ public class DocumentController {
     public Mono<ResponseEntity<String>> changeStatusDocument(
         @RequestBody DocumentChangeStatusRequest request) 
     {
-        if( request.getStatus() < 4) return Mono.error(new IllegalArgumentException("Estado no permitido"));
+        if( request.getStatus() < app.getStatus().getAtendido()) return Mono.error(new IllegalArgumentException("Estado no permitido"));
 
         return dsr.findById(request.getStatus())
         .switchIfEmpty(Mono.error(new IllegalArgumentException("Estado no configurado")))
@@ -108,7 +114,7 @@ public class DocumentController {
         .flatMap(doc -> 
         {
             if( doc.getStatus() == request.getStatus()) return Mono.error(new IllegalArgumentException("El documento ya se encuentra en el estado solicitado"));
-            if( doc.getStatus() == 4) return Mono.error(new IllegalArgumentException("No se puede modificar el estado final (4) Atendido "));
+            if( doc.getStatus() == app.getStatus().getAtendido()) return Mono.error(new IllegalArgumentException("No se puede modificar el estado final Atendido "));
             doc.setStatus(request.getStatus());
             doc.setModifiedAt(LocalDateTime.now());                
 
@@ -126,93 +132,89 @@ public class DocumentController {
             @RequestBody DocumentChangeStatusRequest request) 
     {
         return 
-            dr.findByDocumentKey(request.getDocumentKey())
-            .switchIfEmpty(Mono.error(new IllegalArgumentException("El voucher no existe")))
-            .filter(voucher -> voucher.getStatus() == 1) // solo pasa si el status es 1
-            .switchIfEmpty(Mono.error(new IllegalArgumentException("El voucher no está en estado pendiente")))
-            .filter(voucher -> voucher.getDocumentTypeId() < 100) // solo pasa si el tipo es un voucher
-            .switchIfEmpty(Mono.error(new IllegalArgumentException("El voucher no tiene el tipo esperado")))        
-            .flatMap(voucher -> {
-                // Actualizar estado
-                voucher.setStatus(2); // estado aprobado
-                voucher.setModifiedAt(LocalDateTime.now());
-
-                // Crear entrada de historial
-                DocumentHistory dh_voucher = du.saveSystemHistory( voucher.getDocumentKey(), "", 2, request.getUserPanelId());                 
-                if( voucher.getDocumentTypeId() == 50 ) dh_voucher.setReasonText("Voucher de rectificación aprobado");
-                else dh_voucher.setReasonText("Voucher de solicitud aprobado");
+        dr.findByDocumentKeyVoucher(request.getDocumentKey())
+        .flatMap(voucher -> {    
+            if( voucher==null ) return Mono.error(new IllegalArgumentException("Documento ya existe"));
+            if( voucher.getStatus() != app.getStatus().getPendiente()) return Mono.just(ResponseEntity.badRequest().body("El voucher no se encuentra en estado pendiente"));
+            // Actualizar estado
+            voucher.setStatus(app.getStatus().getAprobado()); // estado aprobado
+            voucher.setModifiedAt(LocalDateTime.now());
+            // Crear entrada de historial
+            DocumentHistory dh_voucher = du.saveSystemHistory( voucher.getDocumentKey(), "", app.getStatus().getAprobado() ,request.getUserPanelId());                 
+            if( voucher.getDocumentTypeId() == app.getType().getVoucherrectificacion() ) dh_voucher.setReasonText("Voucher de rectificación aprobado");
+            else dh_voucher.setReasonText("Voucher de solicitud aprobado");
                 
-                if( voucher.getDocumentTypeId() == 50 ) 
-                {
-                    dr.findByDocumentKeyVoucher(voucher.getDocumentTargetKey())
-                    .switchIfEmpty(Mono.error(new IllegalArgumentException("El documento de la referencia no existe")))
-                    .flatMap(
-                        target -> {
-                            if( target.getDocumentTypeId() < 100 ) return Mono.error(new IllegalArgumentException("El documento de referencia no tiene el tipo esperado"));
-                            if( target.getStatus() == 4 ) return Mono.error(new IllegalArgumentException("El documento de referencia está en estado final (Atendido)"));
-                            if( target.getStatus() == 5) target.setStatus(7); // En Proceso                            
-                            target.setUserLocal(voucher.getUserLocal());
-                            target.setUserLocalType(voucher.getUserLocalType());
-                            // Crear entrada del historial
-                            DocumentHistory dh_target = du.saveSystemHistory( target.getDocumentKey(), "Se ha cambiado el Lugar de Recojo para esta solicitud", voucher.getStatus(), request.getUserPanelId());
+            if( voucher.getDocumentTypeId() == app.getType().getVoucherrectificacion() ) 
+            {
+                return 
+                dr.findByDocumentKeyProcess(voucher.getDocumentTargetKey())
+                .switchIfEmpty(Mono.error(new IllegalArgumentException("La solicitud de la referencia no existe")))
+                .flatMap( target -> {                    
+                    if( target.getStatus() == app.getStatus().getAprobado() ) return Mono.error(new IllegalArgumentException("El documento de referencia está en estado final (Atendido)"));
+                    String reason = "Se ha cambiado el Lugar de Recojo para esta solicitud";
+                    if( target.getStatus() == app.getStatus().getRecojo() ) {
+                        target.setStatus(app.getStatus().getProceso()); // En Proceso
+                        reason = "Se ha cambiado el Lugar de Recojo y el Estado para esta solicitud";
+                    }
+                    target.setUserLocal(voucher.getUserLocal());
+                    target.setUserLocalType(voucher.getUserLocalType());
+                    // Crear entrada del historial
+                    DocumentHistory dh_target = du.saveSystemHistory( target.getDocumentKey(), reason, target.getStatus(), request.getUserPanelId());
                                                         
-                            return dr.save(voucher).then(dr.save(target)).then(dhr.save(dh_voucher)).then(dhr.save(dh_target))
-                            .thenReturn(ResponseEntity.ok("Se ha aprobado el voucher y se ha rectificado el lugar de recojo con éxito"));
-                        }
-                    )
-                    .onErrorResume(e -> Mono.just(ResponseEntity.badRequest().body(e.getMessage())));                    
-                }
-                else {
-                    // Crear nuevo documento en estado pendiente
-                    Document solicitud = du.newDocument(voucher);                    
-                    solicitud.setDocumentTypeId(voucher.getDocumentTypeId()+100);
-                    // Crear entrada de historial
-                    DocumentHistory dh_solicitud = du.saveSystemHistory( solicitud.getDocumentKey(), "Nueva Solicitud de Legalización", 1, request.getUserPanelId());
+                    return dr.save(voucher).then(dr.save(target)).then(dhr.save(dh_voucher)).then(dhr.save(dh_target))
+                        .thenReturn(ResponseEntity.ok("Se ha aprobado el voucher y se ha rectificado el lugar de recojo con éxito"));
+                })
+                .onErrorResume(e -> {
+                        return Mono.just(ResponseEntity.badRequest().body(e.getMessage()));
+                    }
+                );
+            }
+            else {
+                // Crear nuevo documento en estado pendiente
+                Document solicitud = du.newDocument(voucher);                    
+                solicitud.setDocumentTypeId(voucher.getDocumentTypeId()+100);
+                // Crear entrada de historial
+                DocumentHistory dh_solicitud = du.saveSystemHistory( solicitud.getDocumentKey(), "Nueva Solicitud de Legalización", app.getStatus().getPendiente(), request.getUserPanelId());
 
-                    return dr.save(voucher).then(dr.save(solicitud)).then(dhr.save(dh_voucher)).then(dhr.save(dh_solicitud))
-                        .thenReturn(ResponseEntity.ok("Se ha aprobado el voucher y se ha generado la solicitud con éxito"));
-                }
-                return Mono.just(ResponseEntity.ok().body(""));
-            })
-            .onErrorResume(e -> Mono.just(ResponseEntity.badRequest().body(e.getMessage())));
+                return dr.save(voucher).then(dr.save(solicitud)).then(dhr.save(dh_voucher)).then(dhr.save(dh_solicitud))
+                    .thenReturn(ResponseEntity.ok("Se ha aprobado el voucher y se ha generado la solicitud con éxito"));
+            }            
+        })
+        .onErrorResume(e -> {
+                return Mono.just(ResponseEntity.badRequest().body(e.getMessage()));
+            }
+        );
     }
 
-    @PostMapping("/{documentKey}/reject")
+    @PostMapping("/reject/{documentKey}")
     public Mono<ResponseEntity<String>> rejectDocument(
             @PathVariable String documentKey,
-            @RequestBody DocumentChangeStatusRequest request) {
-
+            @RequestBody DocumentChangeStatusRequest request) 
+    {
         return 
-            dr.findByDocumentKey(documentKey)
-            .switchIfEmpty(Mono.error(new IllegalArgumentException("El documento no existe")))
-            .filter(doc -> doc.getStatus() == 1) // solo pasa si el status es 1
-            .switchIfEmpty(Mono.error(new IllegalArgumentException("El documento no tiene el estado esperado")))
-            .filter(doc -> doc.getDocumentTypeId() < 100) // solo pasa si el tipo es un voucher de solicitud
-            .switchIfEmpty(Mono.error(new IllegalArgumentException("El documento no tiene el tipo esperado")))
-            .flatMap(doc -> {
-                // Actualizar estado
-                doc.setStatus(3); // estado rechazado
-                doc.setModifiedAt(LocalDateTime.now());
+        dr.findByDocumentKeyVoucher(documentKey)
+        .switchIfEmpty(Mono.error(new IllegalArgumentException("El documento no existe")))
+        .filter(doc -> doc.getStatus() == app.getStatus().getPendiente()) // solo pasa si el status es 1
+        .switchIfEmpty(Mono.error(new IllegalArgumentException("El documento no tiene el estado esperado")))
+        .filter(doc -> doc.getDocumentTypeId() <= app.getType().getVoucherrectificacion()) // solo pasa si el tipo es un voucher de solicitud
+        .switchIfEmpty(Mono.error(new IllegalArgumentException("El documento no tiene el tipo esperado")))
+        .flatMap(doc -> {
+            // Actualizar estado
+            doc.setStatus(app.getStatus().getRechazado()); // estado rechazado
+            doc.setModifiedAt(LocalDateTime.now());
+            // Crear entrada de historial
+            DocumentHistory dh = du.saveSystemHistory( doc.getDocumentKey(), request.getReasonText(), app.getStatus().getRechazado(), request.getUserPanelId());
+            dh.setReasonType(request.getReasonType());                
 
-                // Crear entrada de historial
-                DocumentHistory dh = new DocumentHistory();
-                dh.setDocumentKey(doc.getDocumentKey());
-                dh.setStatus(3);
-                dh.setReasonText(request.getReasonText());
-                dh.setReasonType(request.getReasonType());
-                dh.setCreatedAt(LocalDateTime.now());
-                dh.setUserPanelId(request.getUserPanelId());
-
-                return dr.save(doc)                    
-                    .then(dhr.save(dh))
-                    .thenReturn(ResponseEntity.ok("Se ha rechazado el voucher"));
-            })
-            .onErrorResume(e -> Mono.just(ResponseEntity.badRequest().body(e.getMessage())));
+            return dr.save(doc).then(dhr.save(dh)).thenReturn(ResponseEntity.ok("Se ha rechazado el voucher"));
+        })
+        .onErrorResume(e -> Mono.just(ResponseEntity.badRequest().body(e.getMessage())));
     }
 
     @GetMapping("/history/{documentKey}")
     Flux<DocumentHistory> getHistoryByKey(
-        @PathVariable String documentKey) {
+        @PathVariable String documentKey) 
+    {
         return dhr.findByDocumentKey(documentKey);
     }
 }

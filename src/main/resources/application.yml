@@ -1,11 +1,8 @@
 spring:
-  r2dbc:
-    username: sa
-    password: 3FgvGJUTKnaKwnskFWNP2RXvw76jkgAc
-    url: r2dbc:postgresql://sa:3FgvGJUTKnaKwnskFWNP2RXvw76jkgAc@dpg-d05poieuk2gs73cnedsg-a.oregon-postgres.render.com:5432/legal_fst8
-    username2: postgres
-    password2: postgres
-    url2: r2dbc:postgresql://localhost:5432/postgres
+  r2dbc:        
+    url: ${SPRING_R2DBC_URL:r2dbc:postgresql://localhost:5432/postgres}
+    username: ${SPRING_R2DBC_USERNAME:postgres}
+    password: ${SPRING_R2DBC_PASSWORD:postgres}
 app:
   status:
     pendiente: 1

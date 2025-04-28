@@ -14,8 +14,11 @@ public interface DocumentRepository extends R2dbcRepository<Document, Integer> {
     Mono<Document> findByDocumentKey(String documentKey);
 
     @Query("SELECT * FROM core.document WHERE document_type_id < 100 AND document_key = :key")
-    Mono<Document> findByDocumentKeyVoucher(String key);
+    Mono<Document> findByDocumentKeyVoucher(@Param("key") String key);
 
     @Query("SELECT * FROM core.document WHERE document_type_id > 100 AND document_key = :key ")
     Mono<Document> findByDocumentKeyProcess(@Param("key") String key);
+
+    @Query("SELECT EXISTS( SELECT 1 FROM core.document WHERE document_type_id = 50 AND status = 1 AND document_target_key = :key ) as resultado")
+    Mono<Boolean> findByExistsRectificacionPendingKey(@Param("key") String key);
 }
