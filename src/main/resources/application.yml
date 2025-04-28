@@ -3,6 +3,8 @@ spring:
     url: ${SPRING_R2DBC_URL:r2dbc:postgresql://localhost:5432/postgres}
     username: ${SPRING_R2DBC_USERNAME:postgres}
     password: ${SPRING_R2DBC_PASSWORD:postgres}
+server:
+  port: ${PORT:8080}
 app:
   status:
     pendiente: 1

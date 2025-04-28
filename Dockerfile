@@ -14,6 +14,8 @@ COPY  . .
 
 # Install Maven
 RUN apt-get update && apt-get install -y maven
+# Permisos de ejecucion para el script mvnw
+RUN chmod +x mvnw
 # Build the application using Maven
 RUN ./mvnw clean package -DskipTests
 
