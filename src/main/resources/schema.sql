@@ -1,8 +1,12 @@
 CREATE SCHEMA IF NOT EXISTS "core";
+DROP VIEW IF EXISTS "core"."document_rates";
 DROP TABLE IF EXISTS "core"."document_status";
 DROP TABLE IF EXISTS "core"."document_history";
 DROP TABLE IF EXISTS "core"."document_type";
 DROP TABLE IF EXISTS "core"."document";
+DROP TABLE IF EXISTS "core"."rates";
+DROP TABLE IF EXISTS "core"."categorie";
+
 CREATE TABLE "core"."document_type" (
   id integer PRIMARY KEY,
   description varchar
@@ -70,4 +74,77 @@ CREATE TABLE "core"."document" (
   price float NOT NULL DEFAULT 0
 );
 
--- SELECT core.document.id, core.document.image_url, core.document.document_url, core.document.status, core.document.created_at, core.document.modified_at, core.document.user_panel_id, core.document.document_type_id, core.document.document_type_name, core.document.document_key, core.document.document_target_key, core.document.user_id, core.document.user_date, core.document.user_real_name, core.document.user_dni, core.document.user_local, core.document.user_local_type, core.document.legalization_type, core.document.portfolio_name, core.document.price FROM core.document WHERE core.document.document_key = 'ertr'
+CREATE TABLE "core"."rates" (
+  id integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY (
+    START WITH 1
+    INCREMENT BY 1
+  ),  
+  legalization_type integer DEFAULT 1,
+  document_type_id integer DEFAULT 1,
+  local_type integer DEFAULT 1,
+  price float DEFAULT 0,
+  user_panel_id integer DEFAULT 0,
+  status integer DEFAULT 1,
+  created_at timestamp DEFAULT CURRENT_TIMESTAMP,
+  modified_at timestamp DEFAULT CURRENT_TIMESTAMP
+);
+
+-- SERVICIO REGULAR
+INSERT INTO "core"."rates"(legalization_type, document_type_id, local_type, price) VALUES(1, 1, 1, 10.50);
+INSERT INTO "core"."rates"(legalization_type, document_type_id, local_type, price) VALUES(1, 1, 2, 10.50);
+INSERT INTO "core"."rates"(legalization_type, document_type_id, local_type, price) VALUES(1, 1, 3, 10.50);
+INSERT INTO "core"."rates"(legalization_type, document_type_id, local_type, price) VALUES(1, 2, 1, 10.50);
+INSERT INTO "core"."rates"(legalization_type, document_type_id, local_type, price) VALUES(1, 2, 2, 10.50);
+INSERT INTO "core"."rates"(legalization_type, document_type_id, local_type, price) VALUES(1, 2, 3, 10.50);
+INSERT INTO "core"."rates"(legalization_type, document_type_id, local_type, price) VALUES(1, 50, 1, 10.50);
+INSERT INTO "core"."rates"(legalization_type, document_type_id, local_type, price) VALUES(1, 50, 2, 10.50);
+INSERT INTO "core"."rates"(legalization_type, document_type_id, local_type, price) VALUES(1, 50, 3, 10.50);
+
+-- SERVICIO EXPRESS
+INSERT INTO "core"."rates"(legalization_type, document_type_id, local_type, price) VALUES(2, 1, 1, 10.50);
+INSERT INTO "core"."rates"(legalization_type, document_type_id, local_type, price) VALUES(2, 1, 2, 10.50);
+INSERT INTO "core"."rates"(legalization_type, document_type_id, local_type, price) VALUES(2, 1, 3, 10.50);
+INSERT INTO "core"."rates"(legalization_type, document_type_id, local_type, price) VALUES(2, 2, 1, 10.50);
+INSERT INTO "core"."rates"(legalization_type, document_type_id, local_type, price) VALUES(2, 2, 2, 10.50);
+INSERT INTO "core"."rates"(legalization_type, document_type_id, local_type, price) VALUES(2, 2, 3, 10.50);
+INSERT INTO "core"."rates"(legalization_type, document_type_id, local_type, price) VALUES(2, 50, 1, 10.50);
+INSERT INTO "core"."rates"(legalization_type, document_type_id, local_type, price) VALUES(2, 50, 2, 10.50);
+INSERT INTO "core"."rates"(legalization_type, document_type_id, local_type, price) VALUES(2, 50, 3, 10.50);
+
+
+CREATE TABLE "core"."categorie" (
+  id integer PRIMARY KEY  GENERATED ALWAYS AS IDENTITY (
+    START WITH 1
+    INCREMENT BY 1
+  ),  
+  categorie_name varchar,
+  categorie_id integer,
+  categorie_item_name varchar,    
+  categorie_item_id integer,  
+  user_panel_id integer DEFAULT 0,
+  status integer DEFAULT 1,
+  created_at timestamp DEFAULT CURRENT_TIMESTAMP,
+  modified_at timestamp DEFAULT CURRENT_TIMESTAMP
+);
+
+INSERT INTO "core"."categorie" (categorie_name, categorie_id, categorie_item_name, categorie_item_id) VALUES ('LEGALIZATION_TYPE', 1, 'REGULAR', 1);
+INSERT INTO "core"."categorie" (categorie_name, categorie_id, categorie_item_name, categorie_item_id) VALUES ('LEGALIZATION_TYPE', 1, 'EXPRESS', 2);
+INSERT INTO "core"."categorie" (categorie_name, categorie_id, categorie_item_name, categorie_item_id) VALUES ('DOCUMENT_TYPE_ID', 10, 'CERTIFICADO', 1);
+INSERT INTO "core"."categorie" (categorie_name, categorie_id, categorie_item_name, categorie_item_id) VALUES ('DOCUMENT_TYPE_ID', 10, 'CONTRATO', 2);
+INSERT INTO "core"."categorie" (categorie_name, categorie_id, categorie_item_name, categorie_item_id) VALUES ('DOCUMENT_TYPE_ID', 10, 'RECTIFICACION', 50);
+INSERT INTO "core"."categorie" (categorie_name, categorie_id, categorie_item_name, categorie_item_id) VALUES ('LOCAL_TYPE', 20, 'LIMA', 1);
+INSERT INTO "core"."categorie" (categorie_name, categorie_id, categorie_item_name, categorie_item_id) VALUES ('LOCAL_TYPE', 20, 'PROVINCIA', 2);
+INSERT INTO "core"."categorie" (categorie_name, categorie_id, categorie_item_name, categorie_item_id) VALUES ('LOCAL_TYPE', 20, 'EXTRANJERO', 3);
+
+CREATE VIEW "core"."document_rates"
+AS
+SELECT r.id, r.legalization_type as legal_type, a.categorie_item_name as legal_name, 
+r.document_type_id as document_type, b.categorie_item_name as document_name, 
+r.local_type, c.categorie_item_name as local_name, r.price 
+FROM "core"."rates" r 
+INNER JOIN "core"."categorie" a ON r.legalization_type = a.categorie_item_id AND a.categorie_name = 'LEGALIZATION_TYPE'
+INNER JOIN "core"."categorie" b ON r.document_type_id = b.categorie_item_id AND b.categorie_name = 'DOCUMENT_TYPE_ID'
+INNER JOIN "core"."categorie" c ON r.local_type = c.categorie_item_id AND c.categorie_name = 'LOCAL_TYPE'
+ORDER BY legalization_type, document_type_id, local_type;
+
+SELECT * FROM "core"."document_rates";

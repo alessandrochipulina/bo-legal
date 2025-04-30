@@ -27,6 +27,8 @@ public class DocumentController {
     private DocumentHistoryRepository dhr;
     @Autowired 
     private DocumentStatusRepository dsr;
+    @Autowired 
+    private DocumentRatesRepository drr;
     @Autowired
     private DocumentUtil du;
     @Autowired
@@ -211,10 +213,9 @@ public class DocumentController {
         .onErrorResume(e -> Mono.just(ResponseEntity.badRequest().body(e.getMessage())));
     }
 
-    @GetMapping("/history/{documentKey}")
-    Flux<DocumentHistory> getHistoryByKey(
-        @PathVariable String documentKey) 
+    @GetMapping("/rates/all")
+    Flux<DocumentRates> getDocumentRates() 
     {
-        return dhr.findByDocumentKey(documentKey);
+        return drr.findAll();
     }
 }

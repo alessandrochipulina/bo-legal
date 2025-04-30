@@ -37,6 +37,6 @@ ENV SPRING_R2DBC_USERNAME=postgres
 ENV SPRING_R2DBC_PASSWORD=postgres
 
 # Run the jar file
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-jar", "app.jar", "--enable-native-access=ALL-UNNAMED"]
 
 
