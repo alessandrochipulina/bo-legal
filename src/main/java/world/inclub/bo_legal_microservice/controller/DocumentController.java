@@ -30,6 +30,8 @@ public class DocumentController {
     @Autowired 
     private DocumentRatesRepository drr;
     @Autowired
+    private CategorieRepository cr;
+    @Autowired
     private DocumentUtil du;
     @Autowired
     private AppProperties app;
@@ -214,8 +216,40 @@ public class DocumentController {
     }
 
     @GetMapping("/rates/all")
-    Flux<DocumentRates> getDocumentRates() 
+    Flux<DocumentRates> getAllDocumentRates() 
     {
         return drr.findAll();
     }
+
+    @GetMapping("/user")
+    Flux<Document> getAllDocumentByUserId(
+        @RequestBody DocumentChangeStatusRequest request
+    ) 
+    {
+        return dr.findAllByDocumentUserId( request.getUserId()).
+        switchIfEmpty(Flux.error(new IllegalArgumentException("El usuario no tiene documentos registrados")));
+    }   
+
+    /*
+    @PostMapping("/rates/price")
+    Mono<ResponseEntity<String>> setDocumentRatesPrice(
+        @RequestBody DocumentRates request)    
+    {
+        return drr.findAll();
+    }
+    */
+
+    @GetMapping("/categories/all")
+    Flux<Categorie> getAllCategorie() 
+    {
+        return cr.findAll();
+    }
+
+    @GetMapping("/categories/{id}")
+    Flux<Categorie> getCategorieById(
+        @RequestBody DocumentChangeStatusRequest request
+    ) 
+    {
+        return cr.findAllByCategorieId( request.getCategorieId() );
+    }    
 }

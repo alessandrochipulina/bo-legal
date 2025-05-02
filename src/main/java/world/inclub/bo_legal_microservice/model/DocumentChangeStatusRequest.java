@@ -13,4 +13,6 @@ public class DocumentChangeStatusRequest {
     private Integer reasonType;
     private Integer userPanelId;     
     private String  documentKey;
+    private String  userId;
+    private Integer categorieId;
 }
