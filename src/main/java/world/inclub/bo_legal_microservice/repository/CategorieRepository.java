@@ -8,5 +8,6 @@ import world.inclub.bo_legal_microservice.model.*;
 
 public interface CategorieRepository extends R2dbcRepository<Categorie, Integer> {
 
+    Flux<Categorie> findAll();    
     Flux<Categorie> findAllByCategorieId(Integer categorieId);    
 }

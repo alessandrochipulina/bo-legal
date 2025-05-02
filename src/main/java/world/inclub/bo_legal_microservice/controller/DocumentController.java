@@ -242,14 +242,16 @@ public class DocumentController {
     @GetMapping("/categories/all")
     Flux<Categorie> getAllCategorie() 
     {
-        return cr.findAll();
+        return cr.findAll()
+        .switchIfEmpty(Flux.error(new IllegalArgumentException("No existen categorias registradas")));
     }
 
     @GetMapping("/categories/{id}")
     Flux<Categorie> getCategorieById(
-        @RequestBody DocumentChangeStatusRequest request
+        @PathVariable Integer categorieId
     ) 
     {
-        return cr.findAllByCategorieId( request.getCategorieId() );
+        return cr.findAllByCategorieId( categorieId )
+        .switchIfEmpty(Flux.error(new IllegalArgumentException("El ID de la categoria no existe")));
     }    
 }
