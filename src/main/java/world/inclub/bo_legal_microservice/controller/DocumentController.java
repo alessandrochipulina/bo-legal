@@ -221,12 +221,12 @@ public class DocumentController {
         return drr.findAll();
     }
 
-    @GetMapping("/user")
+    @GetMapping("/user/{userId}")
     Flux<Document> getAllDocumentByUserId(
-        @RequestBody DocumentChangeStatusRequest request
+        @PathVariable String userId
     ) 
     {
-        return dr.findAllByDocumentUserId( request.getUserId())
+        return dr.findAllByDocumentUserId( userId )
         .switchIfEmpty(Flux.error(new IllegalArgumentException("El usuario no tiene documentos registrados")))
         .onErrorResume(e -> Flux.error(new IllegalArgumentException(e.getMessage())));
     }   
