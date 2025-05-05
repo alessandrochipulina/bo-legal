@@ -28,6 +28,7 @@ public class Document {
     private String documentTypeName;
     private String documentKey;
     private String documentTargetKey;
+    private String documentVoucherKey;
     private String userId;
     private String userDate;
     private String userRealName;

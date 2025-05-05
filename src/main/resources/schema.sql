@@ -65,6 +65,7 @@ CREATE TABLE "core"."document" (
   document_type_name varchar,
   document_key varchar NOT NULL,
   document_target_key varchar NULL,
+  document_voucher_key varchar NULL,
   user_id varchar NOT NULL,
   user_date varchar,
   user_real_name varchar,
