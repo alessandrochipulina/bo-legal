@@ -22,6 +22,10 @@ public interface DocumentRepository extends R2dbcRepository<Document, Integer> {
     @Query("SELECT EXISTS( SELECT 1 FROM core.document WHERE document_type_id = 50 AND status = 1 AND document_target_key = :key ) as resultado")
     Mono<Boolean> findByExistsRectificacionPendingKey(@Param("key") String key);
 
-    @Query("SELECT * FROM core.document WHERE userId = :userId AND status > 0")
+    @Query(
+        "SELECT DISTINCT ON (document_key) document_key, document_type_id, status, modified_at, " +
+        "document_url, document_type_name, portfolio_name, legalization_type " +
+        "FROM core.document WHERE user_id = :userId AND status > 0 " +
+        "ORDER BY document_key, document_type_id DESC ")
     Flux<Document> findAllByDocumentUserId(@Param("userId") String key);
 }

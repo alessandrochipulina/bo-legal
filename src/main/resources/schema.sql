@@ -6,6 +6,8 @@ DROP TABLE IF EXISTS "core"."document_type";
 DROP TABLE IF EXISTS "core"."document";
 DROP TABLE IF EXISTS "core"."rates";
 DROP TABLE IF EXISTS "core"."categorie";
+DROP TABLE IF EXISTS "core"."document_status_description";
+
 
 CREATE TABLE "core"."document_type" (
   id integer PRIMARY KEY,
@@ -65,7 +67,7 @@ CREATE TABLE "core"."document" (
   user_id varchar NOT NULL,
   user_date varchar,
   user_real_name varchar,
-  user_dni varchar,
+  user_dni varchar, 
   user_local varchar,  
   user_local_type integer DEFAULT 1,  
   portfolio_name varchar,
@@ -147,4 +149,23 @@ INNER JOIN "core"."categorie" b ON r.document_type_id = b.categorie_item_id AND 
 INNER JOIN "core"."categorie" c ON r.local_type = c.categorie_item_id AND c.categorie_name = 'LOCAL_TYPE'
 ORDER BY legalization_type, document_type_id, local_type;
 
-SELECT * FROM "core"."document_rates";
+/*
+SELECT DISTINCT ON (document_key) document_key, document_type_id, status, DATE(modified_at) as date, 
+document_url, document_type_name, portfolio_name, legalization_type
+FROM "core"."document"
+ORDER BY document_key, document_type_id DESC;
+*/
+
+CREATE TABLE "core"."document_status_description" (
+  id integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY (
+    START WITH 1
+    INCREMENT BY 1
+  ),
+  document_type_id integer DEFAULT 1,
+  status integer DEFAULT 1,
+  description varchar DEFAULT '',   
+  active integer NOT NULL DEFAULT 1
+);
+INSERT INTO "core"."document_status_description"(document_type_id, status, description) VALUES(1, 1, 'VALIDACION DE PAGO PENDIENTE');
+INSERT INTO "core"."document_status_description"(document_type_id, status, description) VALUES(1, 3, 'PAGO RECHAZADO');
+

@@ -15,10 +15,10 @@ import lombok.NoArgsConstructor;
 public class Categorie {
     @Id
     private Integer id;
-    private Integer categorieName;
+    private String  categorieName;
     private Integer categorieId;
-    private Integer categorieItemName;
-    private Float categorieItemId;    
+    private String categorieItemName;
+    private Integer categorieItemId;    
     private Integer userPanelId;
     private Integer status;
     private LocalDateTime createdAt;

@@ -246,7 +246,7 @@ public class DocumentController {
         .switchIfEmpty(Flux.error(new IllegalArgumentException("No existen categorias registradas")));
     }
 
-    @GetMapping("/categories/{id}")
+    @GetMapping("/categories/{categorieId}")
     Flux<Categorie> getCategorieById(
         @PathVariable Integer categorieId
     ) 
