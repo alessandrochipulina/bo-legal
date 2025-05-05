@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.HttpClientErrorException.BadRequest;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -226,8 +227,9 @@ public class DocumentController {
         @RequestBody DocumentChangeStatusRequest request
     ) 
     {
-        return dr.findAllByDocumentUserId( request.getUserId()).
-        switchIfEmpty(Flux.error(new IllegalArgumentException("El usuario no tiene documentos registrados")));
+        return dr.findAllByDocumentUserId( request.getUserId())
+        .switchIfEmpty(Flux.error(new IllegalArgumentException("El usuario no tiene documentos registrados")))
+        .onErrorResume(e -> Flux.error(new IllegalArgumentException(e.getMessage())));
     }   
 
     /*
