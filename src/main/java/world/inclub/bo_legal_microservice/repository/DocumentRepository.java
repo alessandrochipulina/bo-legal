@@ -23,9 +23,13 @@ public interface DocumentRepository extends R2dbcRepository<Document, Integer> {
     Mono<Boolean> findByExistsRectificacionPendingKey(@Param("key") String key);
 
     @Query(
-        "SELECT DISTINCT ON (document_key) document_key, document_type_id, status, modified_at, " +
-        "document_url, document_type_name, portfolio_name, legalization_type " +
-        "FROM core.document WHERE user_id = :userId AND status > 0 " +
-        "ORDER BY document_key, document_type_id DESC ")
+        "SELECT DISTINCT ON (d.document_key) document_key, d.document_type_id, d.status, d.modified_at, " +
+        "d.document_url, c.categorie_item_name as document_type_name, d.portfolio_name, d.legalization_type, " +    
+        "cd.description as status_description, d.user_local " +
+        "FROM core.document d " +
+        "INNER JOIN core.categorie c ON d.document_type_id = c.categorie_item_id AND c.categorie_name = 'DOCUMENT_TYPE_ID' " +
+        "LEFT JOIN core.document_status_client_description cd ON d.document_type_id = cd.document_type_id AND d.status = cd.status AND cd.active = 1 " +
+        "WHERE d.user_id = :userId AND d.status > 0 " +
+        "ORDER BY d.document_key, d.document_type_id DESC ")
     Flux<Document> findAllByDocumentUserId(@Param("userId") String key);
 }

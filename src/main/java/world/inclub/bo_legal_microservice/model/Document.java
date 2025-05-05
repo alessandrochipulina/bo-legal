@@ -20,6 +20,7 @@ public class Document {
     private String imageUrl;
     private String documentUrl;
     private Integer status;
+    private String statusDescription;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
     private Integer userPanelId;

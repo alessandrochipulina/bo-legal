@@ -6,7 +6,7 @@ DROP TABLE IF EXISTS "core"."document_type";
 DROP TABLE IF EXISTS "core"."document";
 DROP TABLE IF EXISTS "core"."rates";
 DROP TABLE IF EXISTS "core"."categorie";
-DROP TABLE IF EXISTS "core"."document_status_description";
+DROP TABLE IF EXISTS "core"."document_status_client_description";
 
 
 CREATE TABLE "core"."document_type" (
@@ -56,6 +56,7 @@ CREATE TABLE "core"."document" (
     INCREMENT BY 1
   ),  
   status integer DEFAULT 1,
+  status_description varchar,
   created_at timestamp DEFAULT CURRENT_TIMESTAMP,
   modified_at timestamp DEFAULT CURRENT_TIMESTAMP,  
   image_url varchar,
@@ -131,9 +132,11 @@ CREATE TABLE "core"."categorie" (
 
 INSERT INTO "core"."categorie" (categorie_name, categorie_id, categorie_item_name, categorie_item_id) VALUES ('LEGALIZATION_TYPE', 1, 'REGULAR', 1);
 INSERT INTO "core"."categorie" (categorie_name, categorie_id, categorie_item_name, categorie_item_id) VALUES ('LEGALIZATION_TYPE', 1, 'EXPRESS', 2);
-INSERT INTO "core"."categorie" (categorie_name, categorie_id, categorie_item_name, categorie_item_id) VALUES ('DOCUMENT_TYPE_ID', 10, 'CERTIFICADO', 1);
-INSERT INTO "core"."categorie" (categorie_name, categorie_id, categorie_item_name, categorie_item_id) VALUES ('DOCUMENT_TYPE_ID', 10, 'CONTRATO', 2);
-INSERT INTO "core"."categorie" (categorie_name, categorie_id, categorie_item_name, categorie_item_id) VALUES ('DOCUMENT_TYPE_ID', 10, 'RECTIFICACION', 50);
+INSERT INTO "core"."categorie" (categorie_name, categorie_id, categorie_item_name, categorie_item_id) VALUES ('DOCUMENT_TYPE_ID', 10, 'SOLICITUD DE LEGALIZACION DE CERTIFICADO - VOUCHER DE PAGO', 1);
+INSERT INTO "core"."categorie" (categorie_name, categorie_id, categorie_item_name, categorie_item_id) VALUES ('DOCUMENT_TYPE_ID', 10, 'SOLICITUD DE LEGALIZACION DE CONTRATO - VOUCHER DE PAGO', 2);
+INSERT INTO "core"."categorie" (categorie_name, categorie_id, categorie_item_name, categorie_item_id) VALUES ('DOCUMENT_TYPE_ID', 10, 'SOLICITUD DE LEGALIZACION DE CERTIFICADO', 101);
+INSERT INTO "core"."categorie" (categorie_name, categorie_id, categorie_item_name, categorie_item_id) VALUES ('DOCUMENT_TYPE_ID', 10, 'SOLICITUD DE LEGALIZACION DE CONTRATO', 102);
+INSERT INTO "core"."categorie" (categorie_name, categorie_id, categorie_item_name, categorie_item_id) VALUES ('DOCUMENT_TYPE_ID', 10, 'RECTIFICACION DE LUGAR DE RECOJO', 50);
 INSERT INTO "core"."categorie" (categorie_name, categorie_id, categorie_item_name, categorie_item_id) VALUES ('LOCAL_TYPE', 20, 'LIMA', 1);
 INSERT INTO "core"."categorie" (categorie_name, categorie_id, categorie_item_name, categorie_item_id) VALUES ('LOCAL_TYPE', 20, 'PROVINCIA', 2);
 INSERT INTO "core"."categorie" (categorie_name, categorie_id, categorie_item_name, categorie_item_id) VALUES ('LOCAL_TYPE', 20, 'EXTRANJERO', 3);
@@ -149,14 +152,18 @@ INNER JOIN "core"."categorie" b ON r.document_type_id = b.categorie_item_id AND 
 INNER JOIN "core"."categorie" c ON r.local_type = c.categorie_item_id AND c.categorie_name = 'LOCAL_TYPE'
 ORDER BY legalization_type, document_type_id, local_type;
 
+
 /*
-SELECT DISTINCT ON (document_key) document_key, document_type_id, status, DATE(modified_at) as date, 
-document_url, document_type_name, portfolio_name, legalization_type
-FROM "core"."document"
+SELECT DISTINCT ON (document_key) d.document_key, d.document_type_id, d.status, d.modified_at, 
+d.document_url, c.categorie_item_name as document_type_name, d.portfolio_name, d.legalization_type,
+cd.description as status_description, d.user_local
+FROM "core"."document" d 
+INNER JOIN "core"."categorie" c ON d.document_type_id = c.categorie_item_id AND c.categorie_name = 'DOCUMENT_TYPE_ID'
+LEFT JOIN "core"."document_status_client_description" cd ON d.document_type_id = cd.document_type_id AND d.status = cd.status AND cd.active = 1
 ORDER BY document_key, document_type_id DESC;
 */
 
-CREATE TABLE "core"."document_status_description" (
+CREATE TABLE "core"."document_status_client_description" (
   id integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY (
     START WITH 1
     INCREMENT BY 1
@@ -166,6 +173,26 @@ CREATE TABLE "core"."document_status_description" (
   description varchar DEFAULT '',   
   active integer NOT NULL DEFAULT 1
 );
-INSERT INTO "core"."document_status_description"(document_type_id, status, description) VALUES(1, 1, 'VALIDACION DE PAGO PENDIENTE');
-INSERT INTO "core"."document_status_description"(document_type_id, status, description) VALUES(1, 3, 'PAGO RECHAZADO');
+INSERT INTO "core"."document_status_client_description"(document_type_id, status, description) VALUES(1, 1, 'PAGO POR VALIDAR');
+INSERT INTO "core"."document_status_client_description"(document_type_id, status, description) VALUES(1, 3, 'PAGO RECHAZADO');
+INSERT INTO "core"."document_status_client_description"(document_type_id, status, description) VALUES(1, 2, 'PAGO ACEPTADO');
+
+INSERT INTO "core"."document_status_client_description"(document_type_id, status, description) VALUES(2, 1, 'PAGO POR VALIDAR');
+INSERT INTO "core"."document_status_client_description"(document_type_id, status, description) VALUES(2, 3, 'PAGO RECHAZADO');
+INSERT INTO "core"."document_status_client_description"(document_type_id, status, description) VALUES(2, 2, 'PAGO ACEPTADO');
+
+INSERT INTO "core"."document_status_client_description"(document_type_id, status, description) VALUES(50, 1, 'PAGO POR VALIDAR');
+INSERT INTO "core"."document_status_client_description"(document_type_id, status, description) VALUES(50, 3, 'PAGO RECHAZADO');
+INSERT INTO "core"."document_status_client_description"(document_type_id, status, description) VALUES(50, 2, 'PAGO ACEPTADO');
+
+INSERT INTO "core"."document_status_client_description"(document_type_id, status, description) VALUES(101, 1, 'SOLICITUD EN PROCESO');
+INSERT INTO "core"."document_status_client_description"(document_type_id, status, description) VALUES(101, 4, 'SOLICITUD ATENDIDA');
+INSERT INTO "core"."document_status_client_description"(document_type_id, status, description) VALUES(101, 5, 'DEBE ACERCARSE AL LUGAR DE RECOJO');
+INSERT INTO "core"."document_status_client_description"(document_type_id, status, description) VALUES(101, 6, 'SOLICITUD EN PROCESO');
+
+INSERT INTO "core"."document_status_client_description"(document_type_id, status, description) VALUES(102, 1, 'SOLICITUD EN PROCESO');
+INSERT INTO "core"."document_status_client_description"(document_type_id, status, description) VALUES(102, 4, 'SOLICITUD ATENDIDA');
+INSERT INTO "core"."document_status_client_description"(document_type_id, status, description) VALUES(102, 5, 'DEBE ACERCARSE AL LUGAR DE RECOJO');
+INSERT INTO "core"."document_status_client_description"(document_type_id, status, description) VALUES(102, 6, 'SOLICITUD EN PROCESO');
+
 
