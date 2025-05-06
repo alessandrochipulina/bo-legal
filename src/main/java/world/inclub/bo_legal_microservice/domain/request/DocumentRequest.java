@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class DocumentChangeStatusRequest {
+public class DocumentRequest {
     private Integer status;
     private String  reasonText;    
     private Integer reasonType;

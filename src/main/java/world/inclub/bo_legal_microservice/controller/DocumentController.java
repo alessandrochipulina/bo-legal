@@ -11,12 +11,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import world.inclub.bo_legal_microservice.application.services.DocumentUtil;
+import world.inclub.bo_legal_microservice.application.services.DocumentService;
 import world.inclub.bo_legal_microservice.domain.models.*;
-import world.inclub.bo_legal_microservice.domain.request.DocumentChangeStatusRequest;
-import world.inclub.bo_legal_microservice.infraestructure.repositories.CategorieRepository;
-import world.inclub.bo_legal_microservice.infraestructure.repositories.DocumentHistoryRepository;
-import world.inclub.bo_legal_microservice.infraestructure.repositories.DocumentRatesRepository;
+import world.inclub.bo_legal_microservice.domain.request.DocumentRequest;
 import world.inclub.bo_legal_microservice.infraestructure.repositories.DocumentRepository;
 
 @RestController
@@ -24,15 +21,9 @@ import world.inclub.bo_legal_microservice.infraestructure.repositories.DocumentR
 public class DocumentController {
 
     @Autowired
-    private DocumentRepository dr;
-    @Autowired 
-    private DocumentRatesRepository drr;
-    @Autowired 
-    private DocumentHistoryRepository dhr;
+    private DocumentRepository dr;        
     @Autowired
-    private CategorieRepository cr;
-    @Autowired
-    private DocumentUtil du;
+    private DocumentService du;
 
     @PostMapping("/add/solicitud/{documentTypeId}")
     Mono<ResponseEntity<String>> addDocumentSolicitud(
@@ -66,20 +57,21 @@ public class DocumentController {
     {
         return dr.findByDocumentKeyProcess(documentKey)
         .switchIfEmpty(
-            dr.findByDocumentKeyVoucher(documentKey).switchIfEmpty(Mono.error(new IllegalArgumentException("Documento no encontrado")))
+            dr.findByDocumentKeyVoucher(documentKey)
+            .switchIfEmpty(Mono.error(new IllegalArgumentException("Documento no encontrado")))
         );            
     }
 
     @PostMapping("/change")
     public Mono<ResponseEntity<String>> changeStatusDocument(
-        @RequestBody DocumentChangeStatusRequest request) 
+        @RequestBody DocumentRequest request) 
     {
         return du.changeStatusDocument(request);
     }
 
     @PostMapping("/approve")
     public Mono<ResponseEntity<String>> approveDocument(            
-            @RequestBody DocumentChangeStatusRequest request) 
+            @RequestBody DocumentRequest request) 
     {
         return du.approveDocument(request);        
     }
@@ -87,15 +79,9 @@ public class DocumentController {
     @PostMapping("/reject/{documentKey}")
     public Mono<ResponseEntity<String>> rejectDocument(
             @PathVariable String documentKey,
-            @RequestBody DocumentChangeStatusRequest request) 
+            @RequestBody DocumentRequest request) 
     {
         return du.rejectDocument(documentKey, request);
-    }
-
-    @GetMapping("/rates/all")
-    Flux<DocumentRates> getAllDocumentRates() 
-    {
-        return drr.findAll();
     }
 
     @GetMapping("/user/{userId}")
@@ -107,35 +93,4 @@ public class DocumentController {
         .switchIfEmpty(Flux.error(new IllegalArgumentException("El usuario no tiene documentos registrados")))
         .onErrorResume(e -> Flux.error(new IllegalArgumentException(e.getMessage())));
     }   
-
-    @GetMapping("/history/{documentKey}")
-    Flux<DocumentHistory> getHistoryByDocumentKey(@PathVariable String documentKey) 
-    {
-        return dhr.findByDocumentKey( documentKey )
-        .switchIfEmpty(Mono.error(new IllegalArgumentException("No existe el documento en el historial")))
-        .onErrorResume(e -> Flux.error(new IllegalArgumentException(e.getMessage())));
-    }
-
-    /*
-    @PostMapping("/rates/price")
-    Mono<ResponseEntity<String>> setDocumentRatesPrice(
-        @RequestBody DocumentRates request)    
-    {
-        return drr.findAll();
-    }
-    */
-
-    @GetMapping("/categories/all")
-    Flux<Categorie> getAllCategorie() 
-    {
-        return cr.findAll().switchIfEmpty(Flux.error(new IllegalArgumentException("No existen categorias registradas")));
-    }
-
-    @GetMapping("/categories/{categorieId}")
-    Flux<Categorie> getCategorieById(
-        @PathVariable Integer categorieId
-    ) 
-    {
-        return cr.findAllByCategorieId( categorieId ).switchIfEmpty(Flux.error(new IllegalArgumentException("El ID de la categoria no existe")));
-    }    
 }

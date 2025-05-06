@@ -11,14 +11,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import reactor.core.publisher.Mono;
 import world.inclub.bo_legal_microservice.domain.models.Document;
 import world.inclub.bo_legal_microservice.domain.models.DocumentHistory;
-import world.inclub.bo_legal_microservice.domain.request.DocumentChangeStatusRequest;
+import world.inclub.bo_legal_microservice.domain.request.DocumentRequest;
 import world.inclub.bo_legal_microservice.infraestructure.config.AppProperties;
 import world.inclub.bo_legal_microservice.infraestructure.repositories.DocumentHistoryRepository;
 import world.inclub.bo_legal_microservice.infraestructure.repositories.DocumentRepository;
 import world.inclub.bo_legal_microservice.infraestructure.repositories.DocumentStatusRepository;
 
 @Component
-public class DocumentUtil {
+public class DocumentService {
 
     @Autowired
     private DocumentRepository dr;
@@ -104,7 +104,7 @@ public class DocumentUtil {
     }
 
     public Mono<ResponseEntity<String>> changeStatusDocument(
-        @RequestBody DocumentChangeStatusRequest request) 
+        @RequestBody DocumentRequest request) 
     {
         if( request.getStatus() < app.getStatus().getAtendido()) return Mono.error(new IllegalArgumentException("Estado no permitido"));
 
@@ -129,7 +129,7 @@ public class DocumentUtil {
     }
 
     public Mono<ResponseEntity<String>> approveDocument(            
-            @RequestBody DocumentChangeStatusRequest request) 
+            @RequestBody DocumentRequest request) 
     {
         return 
         dr.findByDocumentKeyVoucher(request.getDocumentKey())
@@ -188,7 +188,7 @@ public class DocumentUtil {
 
     public Mono<ResponseEntity<String>> rejectDocument(
             @PathVariable String documentKey,
-            @RequestBody DocumentChangeStatusRequest request) 
+            @RequestBody DocumentRequest request) 
     {
         return 
         dr.findByDocumentKeyVoucher(documentKey)

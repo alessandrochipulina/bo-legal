@@ -7,7 +7,7 @@ DROP TABLE IF EXISTS "core"."document";
 DROP TABLE IF EXISTS "core"."rates";
 DROP TABLE IF EXISTS "core"."categorie";
 DROP TABLE IF EXISTS "core"."document_status_client_description";
-
+DROP TABLE IF EXISTS "usuario";
 
 CREATE TABLE "core"."document_type" (
   id integer PRIMARY KEY,
@@ -202,7 +202,6 @@ INSERT INTO "core"."document_status_client_description"(document_type_id, status
 INSERT INTO "core"."document_status_client_description"(document_type_id, status, description) VALUES(102, 5, 'DEBE ACERCARSE AL LUGAR DE RECOJO');
 INSERT INTO "core"."document_status_client_description"(document_type_id, status, description) VALUES(102, 6, 'SOLICITUD EN PROCESO');
 
-
 /*
 SELECT d.document_key, 
       cr.categorie_item_name as user_local_name, 
@@ -215,5 +214,15 @@ LEFT JOIN core.categorie cr2 ON
 WHERE d.document_type_id < 100 AND d.status > 0 AND d.document_key = 'enxd0bb836173f7'
 
 select * from core.document
-
 */
+
+CREATE TABLE "usuario" (
+  id integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY (
+    START WITH 1
+    INCREMENT BY 1
+  ),
+  nombre varchar NOT NULL UNIQUE,
+  correo varchar NOT NULL UNIQUE,
+  contrasena varchar NOT NULL,   
+  active integer NOT NULL DEFAULT 1
+);
