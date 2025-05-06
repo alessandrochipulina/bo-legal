@@ -23,8 +23,9 @@ public class JwtAuthenticationFilter implements WebFilter {
     public Mono<Void> filter(
         @NonNull ServerWebExchange exchange, @NonNull WebFilterChain chain) 
     {
-        String path = exchange.getRequest().getPath().toString();
+        // String path = exchange.getRequest().getPath().toString();
 
+        /* 
         if (path.startsWith("/api/v1/document/")) {
             String authHeader = exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
             if (authHeader == null || !authHeader.startsWith("Bearer ")) {
@@ -43,6 +44,7 @@ public class JwtAuthenticationFilter implements WebFilter {
                 return exchange.getResponse().setComplete();
             }
         }
+        */
 
         return chain.filter(exchange);
     }
