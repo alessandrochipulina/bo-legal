@@ -23,6 +23,8 @@ public class DocumentController {
     private DocumentRepository dr;
     @Autowired 
     private DocumentRatesRepository drr;
+    @Autowired 
+    private DocumentHistoryRepository dhr;
     @Autowired
     private CategorieRepository cr;
     @Autowired
@@ -101,6 +103,14 @@ public class DocumentController {
         .switchIfEmpty(Flux.error(new IllegalArgumentException("El usuario no tiene documentos registrados")))
         .onErrorResume(e -> Flux.error(new IllegalArgumentException(e.getMessage())));
     }   
+
+    @GetMapping("/history/{documentKey}")
+    Flux<DocumentHistory> getHistoryByDocumentKey(@PathVariable String documentKey) 
+    {
+        return dhr.findByDocumentKey( documentKey )
+        .switchIfEmpty(Mono.error(new IllegalArgumentException("No existe el documento en el historial")))
+        .onErrorResume(e -> Flux.error(new IllegalArgumentException(e.getMessage())));
+    }
 
     /*
     @PostMapping("/rates/price")

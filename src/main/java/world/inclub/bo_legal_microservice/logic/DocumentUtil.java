@@ -83,7 +83,7 @@ public class DocumentUtil {
             if( existe ) return Mono.just( ResponseEntity.badRequest().body("La solicitud de la referencia ya cuenta con un voucher en estado pendiente") );
             return
             dr.findByDocumentKeyProcess(doc.getDocumentTargetKey())            
-            .switchIfEmpty(Mono.error(new IllegalArgumentException("La solicitud referenciada no existe")))
+            .switchIfEmpty(Mono.error(new IllegalArgumentException("La solicitud referenciada X no existe")))
             .flatMap( target -> {
                 // Crear nuevo documento en estado pendiente        
                 if( target.getDocumentTypeId() < app.getType().getSolicitudcertificado()) Mono.error(new IllegalArgumentException("La solicitud referenciada no es del tipo requerido"));
@@ -97,7 +97,9 @@ public class DocumentUtil {
                 return
                 dr.save(voucher).then(dhr.save(dh)).thenReturn(ResponseEntity.ok("Se ha creado el voucher (rectificacion) " + doc.getDocumentKey() + " para " + doc.getDocumentTargetKey() + " con éxito"));
             })
-            .onErrorResume(e -> Mono.just(ResponseEntity.badRequest().body(e.getMessage())));            
+            .onErrorResume(
+                e -> Mono.just(ResponseEntity.badRequest().body(e.getMessage()))
+            );            
         });
     }
 

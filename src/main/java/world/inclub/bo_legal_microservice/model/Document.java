@@ -34,8 +34,10 @@ public class Document {
     private String userRealName;
     private String userDni;
     private String userLocal;
+    private String userLocalName;
     private Integer userLocalType;
     private Integer legalizationType;
+    private String legalizationName;
     private String portfolioName;
     private float price;
 }

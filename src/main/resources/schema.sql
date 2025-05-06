@@ -55,27 +55,29 @@ CREATE TABLE "core"."document" (
     START WITH 1
     INCREMENT BY 1
   ),  
-  status integer DEFAULT 1,
-  status_description varchar,
+  status integer NOT NULL DEFAULT 1,
+  status_description varchar NULL,
   created_at timestamp DEFAULT CURRENT_TIMESTAMP,
   modified_at timestamp DEFAULT CURRENT_TIMESTAMP,  
-  image_url varchar,
-  document_url varchar,
+  image_url varchar NULL,
+  document_url varchar NULL,
   document_type_id integer,  
-  document_type_name varchar,
+  document_type_name varchar NULL,
   document_key varchar NOT NULL,
   document_target_key varchar NULL,
   document_voucher_key varchar NULL,
-  user_id varchar NOT NULL,
-  user_date varchar,
-  user_real_name varchar,
-  user_dni varchar, 
-  user_local varchar,  
-  user_local_type integer DEFAULT 1,  
-  portfolio_name varchar,
-  user_panel_id integer DEFAULT 0,
+  user_id varchar NULL,
+  user_date varchar NULL,
+  user_real_name varchar NULL,
+  user_dni varchar NULL, 
+  user_local varchar NULL,  
+  user_local_name varchar NULL,  
+  user_local_type integer NOT NULL DEFAULT 1,  
+  portfolio_name varchar NULL,
+  user_panel_id integer NOT NULL DEFAULT 0,
   legalization_type integer DEFAULT 1,
-  price float NOT NULL DEFAULT 0
+  legalization_name varchar NULL,
+  price float NULL DEFAULT 0
 );
 
 CREATE TABLE "core"."rates" (
@@ -141,6 +143,10 @@ INSERT INTO "core"."categorie" (categorie_name, categorie_id, categorie_item_nam
 INSERT INTO "core"."categorie" (categorie_name, categorie_id, categorie_item_name, categorie_item_id) VALUES ('LOCAL_TYPE', 20, 'LIMA', 1);
 INSERT INTO "core"."categorie" (categorie_name, categorie_id, categorie_item_name, categorie_item_id) VALUES ('LOCAL_TYPE', 20, 'PROVINCIA', 2);
 INSERT INTO "core"."categorie" (categorie_name, categorie_id, categorie_item_name, categorie_item_id) VALUES ('LOCAL_TYPE', 20, 'EXTRANJERO', 3);
+INSERT INTO "core"."categorie" (categorie_name, categorie_id, categorie_item_name, categorie_item_id) VALUES ('REJECT_TYPE', 30, 'No cuenta con el importe correcto', 1);
+INSERT INTO "core"."categorie" (categorie_name, categorie_id, categorie_item_name, categorie_item_id) VALUES ('REJECT_TYPE', 30, 'Documento ilegible', 2);
+INSERT INTO "core"."categorie" (categorie_name, categorie_id, categorie_item_name, categorie_item_id) VALUES ('REJECT_TYPE', 30, 'No corresponde al tramite solicitado', 3);
+INSERT INTO "core"."categorie" (categorie_name, categorie_id, categorie_item_name, categorie_item_id) VALUES ('REJECT_TYPE', 40, 'Codigo de operacion incorrecto', 4);
 
 CREATE VIEW "core"."document_rates"
 AS
@@ -197,3 +203,17 @@ INSERT INTO "core"."document_status_client_description"(document_type_id, status
 INSERT INTO "core"."document_status_client_description"(document_type_id, status, description) VALUES(102, 6, 'SOLICITUD EN PROCESO');
 
 
+/*
+SELECT d.document_key, 
+      cr.categorie_item_name as user_local_name, 
+      cr2.categorie_item_name as legalization_name
+FROM  core.document d 
+LEFT JOIN core.categorie cr ON 
+      d.user_local_type = cr.categorie_item_id AND cr.categorie_name = 'LOCAL_TYPE'
+LEFT JOIN core.categorie cr2 ON 
+      d.legalization_type = cr2.categorie_item_id AND cr2.categorie_name = 'LEGALIZATION_TYPE'
+WHERE d.document_type_id < 100 AND d.status > 0 AND d.document_key = 'enxd0bb836173f7'
+
+select * from core.document
+
+*/
