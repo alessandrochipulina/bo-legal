@@ -1,4 +1,4 @@
-package world.inclub.bo_legal_microservice.repository;
+package world.inclub.bo_legal_microservice.infraestructure.repositories;
 
 import org.springframework.data.r2dbc.repository.Query;
 import org.springframework.data.r2dbc.repository.R2dbcRepository;
@@ -6,7 +6,7 @@ import org.springframework.data.repository.query.Param;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import world.inclub.bo_legal_microservice.model.Document;
+import world.inclub.bo_legal_microservice.domain.models.Document;
 
 
 public interface DocumentRepository extends R2dbcRepository<Document, Integer> {

@@ -1,4 +1,4 @@
-package world.inclub.bo_legal_microservice.model;
+package world.inclub.bo_legal_microservice.domain.models;
 
 import java.time.LocalDateTime;
 
@@ -11,14 +11,16 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Table("core.document_history")
-public class DocumentHistory {
+@Table("core.rates")
+public class Rates {
     @Id
     private Integer id;
-    private String documentKey;
-    private Integer status;
-    private Integer reasonType;
-    private String reasonText;
+    private Integer legalizationType;
+    private Integer documentTypeId;
+    private Integer localType;
+    private Float price;
     private Integer userPanelId;
+    private Integer status;
     private LocalDateTime createdAt;
+    private LocalDateTime modifiedAt;
 }

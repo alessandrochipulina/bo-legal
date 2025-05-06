@@ -1,4 +1,4 @@
-package world.inclub.bo_legal_microservice.config;
+package world.inclub.bo_legal_microservice.infraestructure.config;
 
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;

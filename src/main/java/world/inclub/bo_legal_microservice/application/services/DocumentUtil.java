@@ -1,4 +1,4 @@
-package world.inclub.bo_legal_microservice.logic;
+package world.inclub.bo_legal_microservice.application.services;
 
 import java.time.LocalDateTime;
 
@@ -9,13 +9,13 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import reactor.core.publisher.Mono;
-import world.inclub.bo_legal_microservice.config.AppProperties;
-import world.inclub.bo_legal_microservice.model.Document;
-import world.inclub.bo_legal_microservice.model.DocumentChangeStatusRequest;
-import world.inclub.bo_legal_microservice.model.DocumentHistory;
-import world.inclub.bo_legal_microservice.repository.DocumentHistoryRepository;
-import world.inclub.bo_legal_microservice.repository.DocumentRepository;
-import world.inclub.bo_legal_microservice.repository.DocumentStatusRepository;
+import world.inclub.bo_legal_microservice.domain.models.Document;
+import world.inclub.bo_legal_microservice.domain.models.DocumentHistory;
+import world.inclub.bo_legal_microservice.domain.request.DocumentChangeStatusRequest;
+import world.inclub.bo_legal_microservice.infraestructure.config.AppProperties;
+import world.inclub.bo_legal_microservice.infraestructure.repositories.DocumentHistoryRepository;
+import world.inclub.bo_legal_microservice.infraestructure.repositories.DocumentRepository;
+import world.inclub.bo_legal_microservice.infraestructure.repositories.DocumentStatusRepository;
 
 @Component
 public class DocumentUtil {

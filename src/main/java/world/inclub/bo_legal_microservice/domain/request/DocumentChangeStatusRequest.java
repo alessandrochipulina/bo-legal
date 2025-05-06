@@ -1,4 +1,4 @@
-package world.inclub.bo_legal_microservice.model;
+package world.inclub.bo_legal_microservice.domain.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

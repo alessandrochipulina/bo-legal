@@ -11,9 +11,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import world.inclub.bo_legal_microservice.logic.*;
-import world.inclub.bo_legal_microservice.model.*;
-import world.inclub.bo_legal_microservice.repository.*;
+import world.inclub.bo_legal_microservice.application.services.DocumentUtil;
+import world.inclub.bo_legal_microservice.domain.models.*;
+import world.inclub.bo_legal_microservice.domain.request.DocumentChangeStatusRequest;
+import world.inclub.bo_legal_microservice.infraestructure.repositories.CategorieRepository;
+import world.inclub.bo_legal_microservice.infraestructure.repositories.DocumentHistoryRepository;
+import world.inclub.bo_legal_microservice.infraestructure.repositories.DocumentRatesRepository;
+import world.inclub.bo_legal_microservice.infraestructure.repositories.DocumentRepository;
 
 @RestController
 @RequestMapping("/api/v1/document")
