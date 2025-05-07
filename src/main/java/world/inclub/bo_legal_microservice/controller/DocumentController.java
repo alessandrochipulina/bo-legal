@@ -88,7 +88,7 @@ public class DocumentController {
     getAllDocumentsByType(@PathVariable @NotNull Integer documentTypeId) 
     {
         return 
-        dr.findAllByDocumentTypeId(documentTypeId)
+        dr.findAllExtraByDocumentTypeId(documentTypeId)
         .collectList()
         .map(documents -> {
             ApiResponse<List<Document>> response = new ApiResponse<>(
