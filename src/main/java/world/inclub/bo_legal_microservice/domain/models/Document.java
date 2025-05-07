@@ -1,4 +1,4 @@
-package world.inclub.bo_legal_microservice.model;
+package world.inclub.bo_legal_microservice.domain.models;
 
 import java.time.LocalDateTime;
 
@@ -28,13 +28,16 @@ public class Document {
     private String documentTypeName;
     private String documentKey;
     private String documentTargetKey;
+    private String documentVoucherKey;
     private String userId;
     private String userDate;
     private String userRealName;
     private String userDni;
     private String userLocal;
+    private String userLocalName;
     private Integer userLocalType;
     private Integer legalizationType;
+    private String legalizationName;
     private String portfolioName;
     private float price;
 }

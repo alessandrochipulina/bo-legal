@@ -1,4 +1,4 @@
-package world.inclub.bo_legal_microservice.config;
+package world.inclub.bo_legal_microservice.infraestructure.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
