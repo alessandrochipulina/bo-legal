@@ -1,7 +1,8 @@
 spring:
-  application.name: bo-legal-microservice
-  config.import: optional:configserver:${CONFIG_SERVER_URL:http://bosrvcfg.inclub.world/}
-
+  profiles:
+    active: prod # dev o prod (esto puedes sobreescribir en línea de comandos o variables de entorno)
+server:
+  port: ${PORT:8080}
 app:
   status:
     pendiente: 1
@@ -11,13 +12,11 @@ app:
     recojo: 5
     proceso: 6
     custom: 7
-
   type:
     vouchercertificado: 1
     vouchercontrato: 2
     voucherrectificacion: 50
     solicitudcertificado: 101
     solicitudcontrato: 102
-
   
 
