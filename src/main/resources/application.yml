@@ -1,6 +1,6 @@
 spring:
   profiles:
-    active: prod # o prod (esto puedes sobreescribir en línea de comandos o variables de entorno)
+    active: prod # dev o prod (esto puedes sobreescribir en línea de comandos o variables de entorno)
 server:
   port: ${PORT:8080}
 app:
