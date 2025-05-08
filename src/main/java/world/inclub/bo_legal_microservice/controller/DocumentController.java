@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.constraints.NotNull;
+import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 import world.inclub.bo_legal_microservice.application.services.DocumentService;
 import world.inclub.bo_legal_microservice.domain.models.*;
@@ -22,6 +23,7 @@ import world.inclub.bo_legal_microservice.infraestructure.repositories.DocumentR
 
 @RestController
 @RequestMapping("/api/v1/document")
+@Slf4j
 public class DocumentController {
 
     @Autowired
@@ -35,16 +37,19 @@ public class DocumentController {
         @RequestBody @NotNull Document doc, 
         @PathVariable @NotNull Integer documentTypeId)
     {        
+        log.info("addDocumentSolicitud: documentTypeId: {}", documentTypeId);
+        log.info("addDocumentSolicitud: document: {}", doc.toString());
+        log.info("addDocumentSolicitud: documentKey: {}", doc.getDocumentKey());
+
         return 
         du.addDocumentSolicitud(doc, documentTypeId)
         .map(response -> {
-            ApiResponse<Document> apiResponse = new ApiResponse<>(
-                "200",
-                "Solicitud de documento registrada correctamente",
-                response );
-            return ResponseEntity.ok(apiResponse);
+            ApiResponse<Document> documentApiResponse = new ApiResponse<>( response, "Solicitud de documento registrada correctamente" );
+            log.debug("addDocumentSolicitud: respuesta: {}", documentApiResponse.toString());
+            return ResponseEntity.ok(documentApiResponse);
         })
-        .switchIfEmpty(Mono.error(new IllegalArgumentException("El documento no existe o no se puede registrar")));
+        .switchIfEmpty(Mono.error(new IllegalArgumentException("El documento no existe o no se puede registrar")))
+        .doOnError(error -> { log.error("addDocumentSolicitud: error: {}", error.getMessage(), error); });
     }
 
     @PostMapping("/add/rectificacion")
@@ -55,10 +60,7 @@ public class DocumentController {
         return 
         du.addDocumentRectificacion(doc)
         .map(response -> {
-            ApiResponse<Document> apiResponse = new ApiResponse<>(
-                "200",
-                "Rectificación de lugar de recojo registrada correctamente",
-                response );
+            ApiResponse<Document> apiResponse = new ApiResponse<>( response, "Rectificación de lugar de recojo registrada correctamente");
             return ResponseEntity.ok(apiResponse);
         })
         .switchIfEmpty(Mono.error(new IllegalArgumentException("El documento no existe o no se puede registrar")));
@@ -73,10 +75,7 @@ public class DocumentController {
         dr.findAll()
         .collectList()
         .map(documents -> {
-            ApiResponse<List<Document>> response = new ApiResponse<>(
-                "200",
-                "Documentos encontrados",
-                documents );
+            ApiResponse<List<Document>> response = new ApiResponse<>(documents, "Documentos encontrados" );
             return ResponseEntity.ok(response);
         })
         .switchIfEmpty(Mono.error(new IllegalArgumentException("No existen documentos registrados")));
@@ -91,12 +90,10 @@ public class DocumentController {
         dr.findAllExtraByDocumentTypeId(documentTypeId)
         .collectList()
         .map(documents -> {
-            ApiResponse<List<Document>> response = new ApiResponse<>(
-                "200",
-                "Documentos encontrados",
-                documents );
+            ApiResponse<List<Document>> response = new ApiResponse<>(documents, "Documentos encontrados" );
             return ResponseEntity.ok(response);
-        });
+        })
+        .switchIfEmpty(Mono.error(new IllegalArgumentException("No existen documentos registrados")));
     }
 
     @GetMapping("/{documentKey}")
@@ -104,25 +101,23 @@ public class DocumentController {
     public Mono<ResponseEntity<ApiResponse<Document>>>
     getByDocumentKey(@PathVariable @NotNull String documentKey) 
     {
+        log.info("getByDocumentKey: documentKey: {}", documentKey );
+
         return dr.findByDocumentKeyProcess(documentKey)
         .map(document -> {
-            ApiResponse<Document> response = new ApiResponse<>(
-                "200",
-                "Documento encontrado",
-                document );
+            ApiResponse<Document> response = new ApiResponse<>(document, "Documento encontrado");
+            log.debug("getByDocumentKey: response: {}", response.toString());
             return ResponseEntity.ok(response);
         })
         .switchIfEmpty(
             dr.findByDocumentKeyVoucher(documentKey)
             .map(document -> {
-                ApiResponse<Document> response = new ApiResponse<>(
-                    "200",
-                    "Documento encontrado",
-                    document );
+                ApiResponse<Document> response = new ApiResponse<>(document, "Documento encontrado" );
+                log.debug("getByDocumentKey: response: {}", response.toString());
                 return ResponseEntity.ok(response);
             })
             .switchIfEmpty(Mono.error(new IllegalArgumentException("El documento no existe")))
-        );        
+        ).doOnError(nullable -> log.error("getByDocumentKey: error: {}", null, nullable));
     }
 
     @PostMapping("/change")
@@ -131,16 +126,17 @@ public class DocumentController {
     changeStatusDocument(
         @RequestBody DocumentRequest request) 
     {
+        log.info("changeStatusDocument: request: {}", request.toString() );
+
         return 
         du.changeStatusDocument(request)
         .map(response -> {
-            ApiResponse<String> apiResponse = new ApiResponse<>(
-                "200",
-                "Estado del documento cambiado correctamente",
-                response );
+            ApiResponse<String> apiResponse = new ApiResponse<>( response, "Estado del documento cambiado correctamente");
+            log.debug("changeStatusDocument: respuesta: {}", apiResponse.toString());
             return ResponseEntity.ok(apiResponse);
         })
-        .switchIfEmpty(Mono.error(new IllegalArgumentException("El documento no existe o no se puede rechazar")));
+        .switchIfEmpty(Mono.error(new IllegalArgumentException("El documento no existe o no se puede rechazar")))
+        .doOnError(error -> log.error("changeStatusDocument: error: {}", error.getMessage(), error));
     }
 
     @PostMapping("/approve")
@@ -149,16 +145,17 @@ public class DocumentController {
     approveDocument(            
             @RequestBody @NotNull DocumentRequest request) 
     {
+        log.info("approveDocument: request: {}", request.toString() );
+        
         return 
         du.approveDocument(request)
         .map(response -> {
-            ApiResponse<String> apiResponse = new ApiResponse<>(
-                "200",
-                "Documento aprobado correctamente",
-                response );
+            ApiResponse<String> apiResponse = new ApiResponse<>(response,"Documento aprobado correctamente" );
+            log.debug("approveDocument: respuesta: {}", apiResponse.toString());
             return ResponseEntity.ok(apiResponse);
         })
-        .switchIfEmpty(Mono.error(new IllegalArgumentException("El documento no existe o no se puede aprobar")));
+        .switchIfEmpty(Mono.error(new IllegalArgumentException("El documento no existe o no se puede aprobar")))
+        .doOnError(error -> log.error("approveDocument: error: {}", error.getMessage(), error));
     }
 
     @PostMapping("/reject/{documentKey}")
@@ -168,16 +165,18 @@ public class DocumentController {
         @PathVariable @NotNull String documentKey,
         @RequestBody @NotNull DocumentRequest request) 
     {
+        log.info("rejectDocument: documentKey: {}", documentKey );
+        log.info("rejectDocument: request: {}", request.toString() );
+
         return 
         du.rejectDocument(documentKey, request)
         .map(response -> {
-            ApiResponse<String> apiResponse = new ApiResponse<>(
-                "200",
-                "Documento rechazado correctamente",
-                response );
+            ApiResponse<String> apiResponse = new ApiResponse<>(response, "Documento rechazado correctamente" );
+            log.debug("rejectDocument: respuesta: {}", apiResponse.toString());
             return ResponseEntity.ok(apiResponse);
         })
-        .switchIfEmpty(Mono.error(new IllegalArgumentException("El documento no existe o no se puede rechazar")));
+        .switchIfEmpty(Mono.error(new IllegalArgumentException("El documento no existe o no se puede rechazar")))
+        .doOnError(error -> log.error("rejectDocument: error: {}", error.getMessage(), error));
     }
 
     @GetMapping("/user/{userId}")
@@ -185,16 +184,17 @@ public class DocumentController {
     public Mono<ResponseEntity<ApiResponse<List<Document>>>>
     getAllDocumentByUserId( @PathVariable @NotNull String userId ) 
     {
+        log.info("getAllDocumentByUserId: userId: {}", userId );
+        
         return dr.findAllByDocumentUserId( userId )
         .collectList()
         .map(documents -> {
-            ApiResponse<List<Document>> response = new ApiResponse<>(
-                "200",
-                "Documentos del usuario recuperados correctamente",
-                documents );
+            ApiResponse<List<Document>> response = new ApiResponse<>(documents, "Documentos del usuario recuperados correctamente");            
+            log.debug("getAllDocumentByUserId: response: {}", response );
             return ResponseEntity.ok(response);
         })
         .switchIfEmpty(Mono.error(new IllegalArgumentException("El usuario no tiene documentos registrados")))
-        .onErrorResume(e -> Mono.error(new IllegalArgumentException(e.getMessage())));
+        .onErrorResume(e -> Mono.error(new IllegalArgumentException(e.getMessage())))
+        .doOnError(e -> log.error("getAllDocumentByUserId: error: {}", e.getMessage(), e));
     }
 }

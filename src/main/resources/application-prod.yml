@@ -1,0 +1,16 @@
+spring:
+  r2dbc:        
+    url: ${SPRING_R2DBC_URL:r2dbc:postgresql://212.56.44.91:31334/dev_bo_legal}
+    username: ${SPRING_R2DBC_USERNAME:postgres}
+    password: ${SPRING_R2DBC_PASSWORD:CsOyVa08Q835}
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url:  ${SPRING_DB_URL:jdbc:postgresql://212.56.44.91:31334/dev_bo_legal}
+    username: ${SPRING_R2DBC_USERNAME:postgres}
+    password: ${SPRING_R2DBC_PASSWORD:CsOyVa08Q835}
+  sql:
+    init:
+      mode: never # Evita ejecutar scripts en producción
+  
+  
+
