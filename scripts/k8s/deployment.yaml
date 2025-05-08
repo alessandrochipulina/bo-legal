@@ -1,0 +1,100 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: ${P_K8S_APP}
+  namespace: ${P_NAMESPACE}
+  labels:
+    app: ${P_K8S_APP}-app
+  annotations:
+    channels: "banca_movil,banca_internet"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ${P_K8S_APP}-app
+  template:
+    metadata:
+      labels:
+        app: ${P_K8S_APP}-app
+    spec:
+      containers:
+        - name: ${P_K8S_APP}
+          image: ${P_IMG_REGISTRY_DOMAIN}/${P_APP_IMAGE}:${P_APP_VERSION}
+          imagePullPolicy: Always
+          ports:
+            - name: http-8778
+              containerPort: 8778
+              hostPort: 8778
+              protocol: TCP
+          envFrom:
+            - secretRef:
+                name: ${P_K8S_SECRET}
+          resources:
+            requests:
+              memory: "4Gi"
+              cpu: "848m"
+      imagePullSecrets:
+        - name: ${P_K8S_SECRET_REGISTRY}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: ${P_K8S_APP}-svc
+  name: ${P_K8S_APP}-svc
+  namespace: ${P_NAMESPACE}
+spec:
+  internalTrafficPolicy: Cluster
+  ipFamilies:
+    - IPv4
+  ipFamilyPolicy: SingleStack
+  ports:
+    - name: http-8778
+      port: 8778
+      protocol: TCP
+      targetPort: http-8778
+  selector:
+    app: ${P_K8S_APP}-app
+  sessionAffinity: None
+  type: LoadBalancer
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  namespace: ${P_NAMESPACE}
+  name: ${P_K8S_APP}-ingress
+  labels:
+    name: ${P_K8S_APP}-ingress
+  annotations:
+    # Configuración para NGINX Ingress Controller
+    nginx.ingress.kubernetes.io/proxy-body-size: "0"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
+
+    # Redirección de HTTP a HTTPS
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      if ($!request_uri !~ "/.well-known/acme-challenge/") {
+        return 301 https://$!host$!request_uri;
+      }
+
+    # Anotaciones para cert-manager y Let's Encrypt  // configuramos manualmente por conflictos con el ambiente dev
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"  # Nombre del ClusterIssuer, no de la clave
+spec:
+  ingressClassName: "nginx"
+  tls:
+    - hosts:
+        - ${P_DOMAIN}
+      secretName: ${P_K8S_APP}-sign-tls   # Este secreto será creado automáticamente   por cert-manager
+  rules:
+    - host: ${P_DOMAIN}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: ${P_K8S_APP}-svc
+                port:
+                  number: 8778
