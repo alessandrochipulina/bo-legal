@@ -18,5 +18,16 @@ app:
     voucherrectificacion: 50
     solicitudcertificado: 101
     solicitudcontrato: 102
-  
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  endpoint:
+    prometheus:
+      access: UNRESTRICTED
+  prometheus:
+    metrics:
+      export:
+        enabled: true
