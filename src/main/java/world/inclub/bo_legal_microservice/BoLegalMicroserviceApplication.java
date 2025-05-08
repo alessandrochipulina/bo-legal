@@ -19,13 +19,15 @@ public class BoLegalMicroserviceApplication {
 
 	@Bean
 	ConnectionFactoryInitializer initializer(ConnectionFactory oCN) {
-		ConnectionFactoryInitializer initializer = new ConnectionFactoryInitializer();
+		ConnectionFactoryInitializer initializer = new ConnectionFactoryInitializer();		
 		initializer.setConnectionFactory(oCN);
+		/*		
 		initializer.setDatabasePopulator(
 			new ResourceDatabasePopulator(
 				new ClassPathResource("schema.sql")
 			)
-		);
+		);		
+		*/
 
 		return initializer;
 	}

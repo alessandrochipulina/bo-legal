@@ -1,13 +1,6 @@
 spring:
-  r2dbc:        
-    url: ${SPRING_R2DBC_URL:r2dbc:postgresql://localhost:5432/postgres}
-    username: ${SPRING_R2DBC_USERNAME:postgres}
-    password: ${SPRING_R2DBC_PASSWORD:postgres}
-  datasource:
-    driver-class-name: org.postgresql.Driver
-    url:  ${SPRING_DB_URL:jdbc:postgresql://localhost:5432/postgres}
-    username: ${SPRING_R2DBC_USERNAME:postgres}
-    password: ${SPRING_R2DBC_PASSWORD:postgres}
+  profiles:
+    active: prod # o prod (esto puedes sobreescribir en línea de comandos o variables de entorno)
 server:
   port: ${PORT:8080}
 app:

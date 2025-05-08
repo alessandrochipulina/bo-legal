@@ -1,3 +1,4 @@
+-- Active: 1746457224664@@212.56.44.91@31334@dev_bo_legal
 CREATE SCHEMA IF NOT EXISTS "core";
 DROP VIEW IF EXISTS "core"."document_rates";
 DROP TABLE IF EXISTS "core"."document_status";
@@ -7,7 +8,7 @@ DROP TABLE IF EXISTS "core"."document";
 DROP TABLE IF EXISTS "core"."rates";
 DROP TABLE IF EXISTS "core"."categorie";
 DROP TABLE IF EXISTS "core"."document_status_client_description";
-DROP TABLE IF EXISTS "usuario";
+-- DROP TABLE IF EXISTS "usuario";
 
 CREATE TABLE "core"."document_type" (
   id integer PRIMARY KEY,
@@ -159,17 +160,6 @@ INNER JOIN "core"."categorie" b ON r.document_type_id = b.categorie_item_id AND 
 INNER JOIN "core"."categorie" c ON r.local_type = c.categorie_item_id AND c.categorie_name = 'LOCAL_TYPE'
 ORDER BY legalization_type, document_type_id, local_type;
 
-
-/*
-SELECT DISTINCT ON (document_key) d.document_key, d.document_type_id, d.status, d.modified_at, 
-d.document_url, c.categorie_item_name as document_type_name, d.portfolio_name, d.legalization_type,
-cd.description as status_description, d.user_local
-FROM "core"."document" d 
-INNER JOIN "core"."categorie" c ON d.document_type_id = c.categorie_item_id AND c.categorie_name = 'DOCUMENT_TYPE_ID'
-LEFT JOIN "core"."document_status_client_description" cd ON d.document_type_id = cd.document_type_id AND d.status = cd.status AND cd.active = 1
-ORDER BY document_key, document_type_id DESC;
-*/
-
 CREATE TABLE "core"."document_status_client_description" (
   id integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY (
     START WITH 1
@@ -203,19 +193,6 @@ INSERT INTO "core"."document_status_client_description"(document_type_id, status
 INSERT INTO "core"."document_status_client_description"(document_type_id, status, description) VALUES(102, 6, 'SOLICITUD EN PROCESO');
 
 /*
-SELECT d.document_key, 
-      cr.categorie_item_name as user_local_name, 
-      cr2.categorie_item_name as legalization_name
-FROM  core.document d 
-LEFT JOIN core.categorie cr ON 
-      d.user_local_type = cr.categorie_item_id AND cr.categorie_name = 'LOCAL_TYPE'
-LEFT JOIN core.categorie cr2 ON 
-      d.legalization_type = cr2.categorie_item_id AND cr2.categorie_name = 'LEGALIZATION_TYPE'
-WHERE d.document_type_id < 100 AND d.status > 0 AND d.document_key = 'enxd0bb836173f7'
-
-select * from core.document
-*/
-
 CREATE TABLE "usuario" (
   id integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY (
     START WITH 1
@@ -226,32 +203,4 @@ CREATE TABLE "usuario" (
   contrasena varchar NOT NULL,   
   active integer NOT NULL DEFAULT 1
 );
-
-/*
-SELECT  +
-d.id, d.document_key, d.status, d.document_type_id, d.created_at, d.modified_at, d.document_target_key, 
-d.image_url, d.document_url, d.document_voucher_key, d.user_id, d.user_date, 
-d.user_local, d.user_local_type, d.user_panel_id, d.legalization_type, d.price, 
-cr.categorie_item_name as user_local_name, cr2.categorie_item_name as legalization_name, 
-c.categorie_item_name as document_type_name, 
-cd.description as status_description, 
-CASE WHEN d.document_type_id = 50 THEN doc.portfolio_name 
-ELSE d.portfolio_name 
-END AS portfolio_name, 
-CASE WHEN d.document_type_id = 50 THEN doc.user_id 
-ELSE d.user_id 
-END AS user_id, 
-CASE WHEN d.document_type_id = 50 THEN doc.user_real_name 
-ELSE d.user_real_name 
-END AS user_real_name, 
-CASE WHEN d.document_type_id = 50 THEN doc.user_dni 
-ELSE d.user_dni 
-END AS user_dni 
-FROM core.document d 
-LEFT JOIN core.document doc ON doc.document_type_id > 100 AND d.document_target_key = doc.document_key AND doc.status > 0 
-LEFT JOIN core.categorie c ON d.document_type_id = c.categorie_item_id AND c.categorie_name = 'DOCUMENT_TYPE_ID' 
-LEFT JOIN core.document_status_client_description cd ON d.document_type_id = cd.document_type_id AND d.status = cd.status AND cd.active = 1 
-LEFT JOIN core.categorie cr ON d.user_local_type = cr.categorie_item_id AND cr.categorie_name = 'LOCAL_TYPE' 
-LEFT JOIN core.categorie cr2 ON d.legalization_type = cr2.categorie_item_id AND cr2.categorie_name = 'LEGALIZATION_TYPE' 
-WHERE d.status > 0
 */
