@@ -44,7 +44,7 @@ public class DocumentService {
     }
 
     public Document newDocument(Document doc) {
-        // Crear nuevo documento en estado pendiente        
+        // Crear nuevo documento en estado pendiente
         return doc.toBuilder()
         .status(1) // nuevo estado        
         .createdAt(LocalDateTime.now()) // fecha de modificación actual
@@ -57,7 +57,7 @@ public class DocumentService {
         @RequestBody Document doc, 
         @PathVariable Integer documentTypeId){
 
-            if( documentTypeId >= app.getType().getVoucherrectificacion() ) 
+            if( documentTypeId >= app.getType().getVoucherrectificacion() )
             return Mono.error(new IllegalArgumentException("Tipo de documento no permitido"));
 
             return dr.findByDocumentKey(doc.getDocumentKey()).hasElement().flatMap( existe -> {
@@ -83,7 +83,7 @@ public class DocumentService {
         .flatMap( existe -> {
             if( existe ) return Mono.error(new IllegalArgumentException("Ya existe una solicitud de rectificación pendiente"));
             return
-            dr.findByDocumentKeyProcess(doc.getDocumentTargetKey())            
+            dr.findByDocumentKeyProcess(doc.getDocumentTargetKey())
             .switchIfEmpty(Mono.error(new IllegalArgumentException("La solicitud referenciada X no existe")))
             .flatMap( target -> {
                 // Crear nuevo documento en estado pendiente        

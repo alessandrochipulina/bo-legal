@@ -26,6 +26,7 @@ public class AppProperties {
         private Integer recojo;
         private Integer proceso;
         private Integer custom;
+
     }   
     
     @Data
@@ -36,6 +37,6 @@ public class AppProperties {
         private Integer vouchercontrato;
         private Integer voucherrectificacion;
         private Integer solicitudcertificado;
-        private Integer solicitudcontrato;        
-    }    
+        private Integer solicitudcontrato;
+    }
 }

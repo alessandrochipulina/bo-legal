@@ -12,8 +12,8 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Table("core.document")
 @Builder(toBuilder = true)
+@Table("core.document")
 public class Document {
     @Id
     private Integer id;
