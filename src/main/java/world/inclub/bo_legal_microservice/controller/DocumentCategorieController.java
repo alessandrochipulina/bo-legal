@@ -40,7 +40,7 @@ public class DocumentCategorieController {
             return ResponseEntity.ok(response);
         })
         .switchIfEmpty(Mono.error(new IllegalArgumentException("No existen categorias registradas")))
-        .onErrorResume(e -> Mono.error(new IllegalArgumentException(e.getMessage())))
+        .onErrorResume(e -> Mono.error(new IllegalArgumentException(e.getMessage(), e)))
         .doOnError(error -> { log.error("getAllCategorie: error: {}", error.getMessage(), error); });        
     }
 
@@ -59,7 +59,7 @@ public class DocumentCategorieController {
             return ResponseEntity.ok(response);
         })
         .switchIfEmpty(Mono.error(new IllegalArgumentException("El ID de la categoria no existe")))
-        .onErrorResume(e -> Mono.error(new IllegalArgumentException(e.getMessage())))
+        .onErrorResume(e -> Mono.error(new IllegalArgumentException(e.getMessage(), e)))
         .doOnError(error -> { log.error("getCategorieById: error: {}", error.getMessage(), error); });
     }    
 }

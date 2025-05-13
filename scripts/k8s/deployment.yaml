@@ -22,9 +22,9 @@ spec:
           image: ${P_IMG_REGISTRY_DOMAIN}/${P_APP_IMAGE}:${P_APP_VERSION}
           imagePullPolicy: Always
           ports:
-            - name: http-8778
-              containerPort: 8778
-              hostPort: 8778
+            - name: http-8080
+              containerPort: 8080
+              hostPort: 8080
               protocol: TCP
           envFrom:
             - secretRef:
@@ -49,10 +49,10 @@ spec:
     - IPv4
   ipFamilyPolicy: SingleStack
   ports:
-    - name: http-8778
-      port: 8778
+    - name: http-8080
+      port: 8080
       protocol: TCP
-      targetPort: http-8778
+      targetPort: http-8080
   selector:
     app: ${P_K8S_APP}-app
   sessionAffinity: None
@@ -97,4 +97,4 @@ spec:
               service:
                 name: ${P_K8S_APP}-svc
                 port:
-                  number: 8778
+                  number: 8080

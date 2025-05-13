@@ -4,7 +4,7 @@
 # Stage 1: Build the application
 
 # Use an official OpenJDK 24 runtime as a parent image
-FROM eclipse-temurin:24-jdk AS builder
+FROM eclipse-temurin:21-jdk AS builder
 
 # Set the working directory in the container
 WORKDIR /app
@@ -20,7 +20,7 @@ RUN chmod +x mvnw
 RUN ./mvnw clean package -DskipTests
 
 # Stage 2: Create the runtime image
-FROM eclipse-temurin:24-jre
+FROM eclipse-temurin:21-jre
 
 # Set the working directory in the container
 WORKDIR /app
@@ -30,11 +30,6 @@ COPY --from=builder /app/target/*.jar app.jar
 
 # Expose the port your Spring WebFlux application runs on
 EXPOSE 8080
-
-# Set environment variables for PostgreSQL
-ENV SPRING_R2DBC_URL=r2dbc:postgresql://127.0.0.1:5432/postgres
-ENV SPRING_R2DBC_USERNAME=postgres
-ENV SPRING_R2DBC_PASSWORD=postgres
 
 # Run the jar file
 ENTRYPOINT ["java", "-jar", "app.jar", "--enable-native-access=ALL-UNNAMED"]
