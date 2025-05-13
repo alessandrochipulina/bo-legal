@@ -1,5 +1,7 @@
 package world.inclub.bo_legal_microservice.application.services;
 
+import java.time.LocalDateTime;
+
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -27,20 +29,32 @@ public class CicloService {
         return repository.save(ciclo);
     }
 
-    public Mono<Void> deleteById(Integer id) {
-        return repository.deleteById(id);
+    public Mono<Ciclo> deleteById(Integer id) {
+        return repository.findById(id)
+                .flatMap(existing -> {                     
+                    return repository.deleteById(id).thenReturn(existing);                    
+                });
     }
 
     public Mono<Ciclo> update(Integer id, Ciclo updated) {
         return repository.findById(id)
-                .flatMap(existing -> {
-                    /* 
+                .flatMap(existing -> {                     
                     existing.setName(updated.getName());
+                    existing.setLegalizationType(updated.getLegalizationType());                    
+                    existing.setStatus(updated.getStatus());
+                    existing.setAllDay(updated.getAllDay());
+                    existing.setStartHourAt(updated.getStartHourAt());
+                    existing.setEndHourAt(updated.getEndHourAt());
+                    existing.setLocale(updated.getLocale());
+                    existing.setDescription(updated.getDescription());
+                    existing.setColor(updated.getColor());               
+                    // completar con la fecha y hora actual
+                    existing.setModifiedAt(LocalDateTime.now());
+                    existing.setUserPanelId(updated.getUserPanelId());                    
                     existing.setStartAt(updated.getStartAt());
-                    existing.setEndAt(updated.getEndAt());
-                    */
+                    existing.setEndAt(updated.getEndAt());        
                     // Actualiza los campos necesarios
-                    return repository.save(existing);
+                    return repository.save(existing).thenReturn(existing);
                 });
     }
 }

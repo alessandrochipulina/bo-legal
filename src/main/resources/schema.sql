@@ -8,6 +8,7 @@ DROP TABLE IF EXISTS "core"."document";
 DROP TABLE IF EXISTS "core"."rates";
 DROP TABLE IF EXISTS "core"."categorie";
 DROP TABLE IF EXISTS "core"."document_status_client_description";
+DROP TABLE IF EXISTS "core"."ciclo";
 -- DROP TABLE IF EXISTS "usuario";
 
 CREATE TABLE "core"."document_type" (
@@ -204,3 +205,27 @@ CREATE TABLE "usuario" (
   active integer NOT NULL DEFAULT 1
 );
 */
+
+
+CREATE TABLE "core"."ciclo" (
+  id integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY (
+    START WITH 1
+    INCREMENT BY 1
+  ),
+  legalization_type integer DEFAULT 1,
+  legalization_name varchar DEFAULT '',
+  name varchar DEFAULT '',
+  status integer DEFAULT 1,
+  start_at timestamp DEFAULT CURRENT_TIMESTAMP, 
+  end_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  all_day integer DEFAULT 0,  
+  start_hour_at TIME DEFAULT '08:00:00',
+  end_hour_at TIME DEFAULT '17:00:00',
+  locale varchar DEFAULT '',
+  description varchar DEFAULT '',   
+  color varchar DEFAULT 'gray',
+  created_at timestamp DEFAULT CURRENT_TIMESTAMP,
+  modified_at timestamp DEFAULT CURRENT_TIMESTAMP,
+  user_panel_id integer DEFAULT 0, 
+  active integer NOT NULL DEFAULT 1
+);
