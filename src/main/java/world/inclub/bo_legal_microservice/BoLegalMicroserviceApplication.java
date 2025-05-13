@@ -15,19 +15,4 @@ public class BoLegalMicroserviceApplication {
 		SpringApplication.run(BoLegalMicroserviceApplication.class, args);
 	}
 
-	@Bean
-	ConnectionFactoryInitializer initializer(ConnectionFactory oCN) {
-		ConnectionFactoryInitializer initializer = new ConnectionFactoryInitializer();		
-		initializer.setConnectionFactory(oCN);
-		/*		
-		initializer.setDatabasePopulator(
-			new ResourceDatabasePopulator(
-				new ClassPathResource("schema.sql")
-			)
-		);		
-		*/
-
-		return initializer;
-	}
-
 }
