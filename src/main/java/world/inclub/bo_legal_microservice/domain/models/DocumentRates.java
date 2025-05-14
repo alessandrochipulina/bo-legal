@@ -20,4 +20,5 @@ public class DocumentRates {
     private Integer localType;
     private String localName;
     private Float price;
+    private Integer status;
 }

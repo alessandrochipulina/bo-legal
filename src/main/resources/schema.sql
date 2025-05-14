@@ -154,7 +154,7 @@ CREATE VIEW "core"."document_rates"
 AS
 SELECT r.id, r.legalization_type as legal_type, a.categorie_item_name as legal_name, 
 r.document_type_id as document_type, b.categorie_item_name as document_name, 
-r.local_type, c.categorie_item_name as local_name, r.price 
+r.local_type, c.categorie_item_name as local_name, r.price, r.status 
 FROM "core"."rates" r 
 INNER JOIN "core"."categorie" a ON r.legalization_type = a.categorie_item_id AND a.categorie_name = 'LEGALIZATION_TYPE'
 INNER JOIN "core"."categorie" b ON r.document_type_id = b.categorie_item_id AND b.categorie_name = 'DOCUMENT_TYPE_ID'

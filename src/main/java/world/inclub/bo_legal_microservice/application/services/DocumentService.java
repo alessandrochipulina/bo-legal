@@ -10,9 +10,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import reactor.core.publisher.Mono;
 import world.inclub.bo_legal_microservice.domain.models.Document;
 import world.inclub.bo_legal_microservice.domain.models.DocumentHistory;
+import world.inclub.bo_legal_microservice.domain.models.DocumentRates;
 import world.inclub.bo_legal_microservice.domain.request.DocumentRequest;
 import world.inclub.bo_legal_microservice.infraestructure.config.AppProperties;
 import world.inclub.bo_legal_microservice.infraestructure.repositories.DocumentHistoryRepository;
+import world.inclub.bo_legal_microservice.infraestructure.repositories.DocumentRatesRepository;
 import world.inclub.bo_legal_microservice.infraestructure.repositories.DocumentRepository;
 import world.inclub.bo_legal_microservice.infraestructure.repositories.DocumentStatusRepository;
 
@@ -25,6 +27,8 @@ public class DocumentService {
     private DocumentHistoryRepository dhr;
     @Autowired 
     private DocumentStatusRepository dsr;
+    @Autowired
+    private DocumentRatesRepository drr;
     @Autowired
     private AppProperties app;
 
@@ -55,13 +59,22 @@ public class DocumentService {
 
     public Mono<Document> addDocumentSolicitud(
         @RequestBody Document doc, 
-        @PathVariable Integer documentTypeId){
+        @PathVariable Integer documentTypeId) {
 
             if( documentTypeId >= app.getType().getVoucherrectificacion() )
             return Mono.error(new IllegalArgumentException("Tipo de documento no permitido"));
 
+            Mono<DocumentRates> r = drr.findByLegalTypeAndDocumentTypeAndLocalType(
+                doc.getLegalizationType(), 
+                documentTypeId, 
+                doc.getUserLocalType());
+            if( r==null ) return Mono.error(new IllegalArgumentException("No se encuentra la tarifa de documento"));
+            if( r.block().getStatus() == 0 ) return Mono.error(new IllegalArgumentException("La combinatoria de la solicitud no se encuentra habilitada"));   
+
             return dr.findByDocumentKey(doc.getDocumentKey()).hasElement().flatMap( existe -> {
-                if( existe ) return Mono.error(new IllegalArgumentException("Documento ya existe"));
+                if( existe ) {
+                    return Mono.error(new IllegalArgumentException("Documento ya existe"));
+                }
                 else {
                     // Crear nuevo documento en estado pendiente        
                     Document nuevoDoc = this.newDocument(doc);
