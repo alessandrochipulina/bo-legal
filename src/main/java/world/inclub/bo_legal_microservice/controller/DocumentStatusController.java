@@ -19,6 +19,7 @@ import reactor.core.publisher.Mono;
 import world.inclub.bo_legal_microservice.application.services.DocumentStatusService;
 import world.inclub.bo_legal_microservice.domain.models.*;
 import world.inclub.bo_legal_microservice.domain.request.ApiResponse;
+import world.inclub.bo_legal_microservice.domain.request.StatusRequest;
 
 @RestController
 @RequestMapping("/api/v1/document/status")
@@ -49,7 +50,7 @@ public class DocumentStatusController {
     @PostMapping("/add")
     @Validated
     Mono<ResponseEntity<ApiResponse<DocumentStatus>>>
-    addStatus( @RequestBody @NotNull @Valid DocumentStatus request)
+    addStatus( @RequestBody @NotNull @Valid StatusRequest request)
     {
         log.info("addStatus: Adding new document status");
         
@@ -68,7 +69,7 @@ public class DocumentStatusController {
     Mono<ResponseEntity<ApiResponse<DocumentStatus>>> 
     editStatus(
         @PathVariable @NotNull @Valid Integer Id,
-        @RequestBody @NotNull @Valid DocumentStatus request)    
+        @RequestBody @NotNull @Valid StatusRequest request)    
     {                
         log.info("editStatus: Editing document status with id: {}", Id);
         
@@ -78,7 +79,7 @@ public class DocumentStatusController {
         .flatMap(existe -> {
             if (existe) {   
                 log.info("editStatus: Document status exists, updating...");
-                return dsr.update(request)
+                return dsr.update(request, Id)
                 .map(status -> {
                     ApiResponse<DocumentStatus> response = new ApiResponse<>(status, "Document status updated successfully");
                     log.debug("editStatus: response: {}", response.toString());

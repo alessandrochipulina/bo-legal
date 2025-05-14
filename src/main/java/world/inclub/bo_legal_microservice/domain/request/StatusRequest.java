@@ -1,7 +1,5 @@
 package world.inclub.bo_legal_microservice.domain.request;
 
-import org.springframework.data.annotation.Id;
-
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import lombok.AllArgsConstructor;
@@ -12,13 +10,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class StatusRequest {
-    @Id
     private Integer id;
     private String color;    
     private String description;    
     @Max(value = 1, message = "active debe ser menor o igual a 1")
     @Min(value = 0, message = "active debe ser mayor o igual a 0")
-    private Integer active;    
-    @Min(value = 1, message = "price debe ser mayor o igual a 1")
-    private Integer isDeleteable;
+    private Integer active;
 }
