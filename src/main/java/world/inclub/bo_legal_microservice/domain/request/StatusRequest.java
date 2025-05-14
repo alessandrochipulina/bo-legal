@@ -1,6 +1,8 @@
 package world.inclub.bo_legal_microservice.domain.request;
 
 import org.springframework.data.annotation.Id;
+
+import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -9,15 +11,14 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class RateRequest {
+public class StatusRequest {
     @Id
     private Integer id;
-    @Min(value = 1, message = "legalType debe ser mayor o igual a 1")
-    private Integer legalType;    
-    @Min(value = 1, message = "documentType debe ser mayor o igual a 1")
-    private Integer documentType;    
-    @Min(value = 1, message = "localType debe ser mayor o igual a 1")
-    private Integer localType;    
+    private String color;    
+    private String description;    
+    @Max(value = 1, message = "active debe ser menor o igual a 1")
+    @Min(value = 0, message = "active debe ser mayor o igual a 0")
+    private Integer active;    
     @Min(value = 1, message = "price debe ser mayor o igual a 1")
-    private Float price;
+    private Integer isDeleteable;
 }

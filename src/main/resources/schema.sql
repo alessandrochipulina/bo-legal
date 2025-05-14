@@ -37,7 +37,7 @@ INSERT INTO "core"."document_status"(color, description, is_deleteable) VALUES('
 INSERT INTO "core"."document_status"(color, description, is_deleteable) VALUES('orange', 'Atendido', 0); -- 4
 INSERT INTO "core"."document_status"(color, description, is_deleteable) VALUES('orange', 'En Lugar de Recojo', 0); -- 5
 INSERT INTO "core"."document_status"(color, description, is_deleteable) VALUES('yellow', 'En Proceso', 0); -- 6
-INSERT INTO "core"."document_status"(color, description, is_deleteable) VALUES('orange', 'Estado Custom 1', 0); -- 7 >
+INSERT INTO "core"."document_status"(color, description, is_deleteable) VALUES('orange', 'Estado Custom 1', 1); -- 7
 
 CREATE TABLE "core"."document_history" (
   id integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY (
