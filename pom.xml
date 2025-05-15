@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>world.inclub</groupId>
 	<artifactId>bo-legal-microservice</artifactId>
-	<version>0.0.2-SNAPSHOT</version>
+	<version>0.0.3-SNAPSHOT</version>
 	<name>bo-legal-microservice</name>
 	<description>Inclub - Microservicio Modulo Legal</description>
 	<url/>
