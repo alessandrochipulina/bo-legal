@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import reactor.core.publisher.Mono;
 import world.inclub.bo_legal_microservice.domain.models.Document;
 import world.inclub.bo_legal_microservice.domain.models.DocumentHistory;
-import world.inclub.bo_legal_microservice.domain.models.DocumentRates;
 import world.inclub.bo_legal_microservice.domain.request.DocumentRequest;
 import world.inclub.bo_legal_microservice.infraestructure.config.AppProperties;
 import world.inclub.bo_legal_microservice.infraestructure.repositories.DocumentHistoryRepository;
@@ -61,31 +60,36 @@ public class DocumentService {
         @RequestBody Document doc, 
         @PathVariable Integer documentTypeId) {
 
-            if( documentTypeId >= app.getType().getVoucherrectificacion() )
-            return Mono.error(new IllegalArgumentException("Tipo de documento no permitido"));
+        if( documentTypeId >= app.getType().getVoucherrectificacion() )
+        return Mono.error(new IllegalArgumentException("Tipo de documento no permitido"));
 
-            Mono<DocumentRates> r = drr.findByLegalTypeAndDocumentTypeAndLocalType(
-                doc.getLegalizationType(), 
-                documentTypeId, 
-                doc.getUserLocalType());
-            if( r==null ) return Mono.error(new IllegalArgumentException("No se encuentra la tarifa de documento"));
-            if( r.block().getStatus() == 0 ) return Mono.error(new IllegalArgumentException("La combinatoria de la solicitud no se encuentra habilitada"));   
-
-            return dr.findByDocumentKey(doc.getDocumentKey()).hasElement().flatMap( existe -> {
-                if( existe ) {
-                    return Mono.error(new IllegalArgumentException("Documento ya existe"));
+        return
+        drr.findByLegalTypeAndDocumentTypeAndLocalType(
+            doc.getLegalizationType(), 
+            documentTypeId, 
+            doc.getUserLocalType())
+            .switchIfEmpty(Mono.error(new IllegalArgumentException("No se encuentra la tarifa de documento")))
+            .flatMap(rate -> {
+                if (rate.getStatus() == 0) {
+                    return Mono.error(new IllegalArgumentException("La combinatoria de la solicitud no se encuentra habilitada"));
                 }
-                else {
-                    // Crear nuevo documento en estado pendiente        
-                    Document nuevoDoc = this.newDocument(doc);
-                    nuevoDoc.setDocumentTypeId(documentTypeId);
-                    // Crear entrada de historial
-                    DocumentHistory dh = this.saveSystemHistory( doc.getDocumentKey(), "Nuevo Voucher de Solicitud de Legalización",1, doc.getUserPanelId());
-                    // Grabar los datos
-                    return dr.save(nuevoDoc).then(dhr.save(dh))
-                    .thenReturn(nuevoDoc);
-                }
-            }).onErrorResume(e -> Mono.error(new IllegalArgumentException(e.getMessage()))); 
+                return dr.findByDocumentKey(doc.getDocumentKey()).hasElement().
+                flatMap( existe -> {
+                    if( existe ) {
+                        return Mono.error(new IllegalArgumentException("Documento ya existe"));
+                    }
+                    else {
+                        // Crear nuevo documento en estado pendiente        
+                        Document nuevoDoc = this.newDocument(doc);
+                        nuevoDoc.setDocumentTypeId(documentTypeId);
+                        // Crear entrada de historial
+                        DocumentHistory dh = this.saveSystemHistory( doc.getDocumentKey(), "Nuevo Voucher de Solicitud de Legalización",1, doc.getUserPanelId());
+                        // Grabar los datos
+                        return dr.save(nuevoDoc).then(dhr.save(dh)).thenReturn(nuevoDoc);
+                    }
+                });                
+            }
+        ).onErrorResume(e -> Mono.error(new IllegalArgumentException(e.getMessage())));                
     }
     
     public Mono<Document> addDocumentRectificacion(
