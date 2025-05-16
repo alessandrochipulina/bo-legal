@@ -26,18 +26,20 @@ ALTER SEQUENCE status_seq RESTART WITH 1;
 
 CREATE TABLE "core"."document_status" (
   id integer NOT NULL DEFAULT nextval('status_seq') PRIMARY KEY,
+  name VARCHAR DEFAULT '',
+  detail VARCHAR DEFAULT '',
   color varchar DEFAULT 'gray',
-  description varchar,
+  description varchar DEFAULT '',
   is_deleteable integer DEFAULT 1,
   active integer NOT NULL DEFAULT 1
 );
-INSERT INTO "core"."document_status"(color, description, is_deleteable) VALUES('green',  'Pendiente', 0);
-INSERT INTO "core"."document_status"(color, description, is_deleteable) VALUES('blue',   'Aceptado', 0);
-INSERT INTO "core"."document_status"(color, description, is_deleteable) VALUES('red',    'Rechazado', 0);
-INSERT INTO "core"."document_status"(color, description, is_deleteable) VALUES('orange', 'Atendido', 0); -- 4
-INSERT INTO "core"."document_status"(color, description, is_deleteable) VALUES('orange', 'En Lugar de Recojo', 0); -- 5
-INSERT INTO "core"."document_status"(color, description, is_deleteable) VALUES('yellow', 'En Proceso', 0); -- 6
-INSERT INTO "core"."document_status"(color, description, is_deleteable) VALUES('orange', 'Estado Custom 1', 1); -- 7
+INSERT INTO "core"."document_status"(color, name, detail, description, is_deleteable) VALUES('green', 'Pendiente', 'Pendiente de ser aprobado', 'Pendiente', 0);
+INSERT INTO "core"."document_status"(color, name, detail, description, is_deleteable) VALUES('blue',  'Aceptado', 'Listo para ser procesado', 'Aceptado', 0);
+INSERT INTO "core"."document_status"(color, name, detail, description, is_deleteable) VALUES('red',   'Rechazado', 'Rechazado por motivo', 'Rechazado', 0);
+INSERT INTO "core"."document_status"(color, name, detail, description, is_deleteable) VALUES('orange','Atendido', 'Proceso finalizado', 'Atendido', 0); -- 4
+INSERT INTO "core"."document_status"(color, name, detail, description, is_deleteable) VALUES('orange','En Lugar de Recojo' , 'Listo para ser recojido por el cliente', 'En Lugar de Recojo', 0); -- 5
+INSERT INTO "core"."document_status"(color, name, detail, description, is_deleteable) VALUES('yellow','En Proceso', 'El documento vienen siendo atendido por el área de Legal', 'En Proceso', 0); -- 6
+INSERT INTO "core"."document_status"(color, name, detail, description, is_deleteable) VALUES('orange','Estado Custom 1','Estado Custom 1', 'Estado Custom 1', 1); -- 7
 
 CREATE TABLE "core"."document_history" (
   id integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY (
@@ -59,6 +61,9 @@ CREATE TABLE "core"."document" (
   ),  
   status integer NOT NULL DEFAULT 1,
   status_description varchar NULL,
+  status_name varchar NULL,
+  status_color varchar NULL,
+  status_detail varchar NULL,
   created_at timestamp DEFAULT CURRENT_TIMESTAMP,
   modified_at timestamp DEFAULT CURRENT_TIMESTAMP,  
   image_url varchar NULL,

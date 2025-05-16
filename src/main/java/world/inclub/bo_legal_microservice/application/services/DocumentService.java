@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import world.inclub.bo_legal_microservice.domain.models.Document;
 import world.inclub.bo_legal_microservice.domain.models.DocumentHistory;
@@ -221,5 +222,10 @@ public class DocumentService {
             return dr.save(doc).then(dhr.save(dh)).thenReturn("OK");
         })
         .onErrorResume(e -> Mono.just(e.getMessage()));
+    }
+
+    public Flux<Document> findAll() 
+    {
+        return dr.findAllExtra();
     }
 }

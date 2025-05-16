@@ -21,6 +21,9 @@ public class Document {
     private String documentUrl;
     private Integer status;
     private String statusDescription;
+    private String statusName;
+    private String statusColor;
+    private String statusDetail;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
     private Integer userPanelId;

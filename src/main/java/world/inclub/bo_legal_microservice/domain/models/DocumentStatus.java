@@ -18,9 +18,11 @@ public class DocumentStatus {
     @Id 
     private Integer id;
     @NotBlank(message = "color no puede estar vacio")
-    private String color;    
-    @NotBlank(message = "description no puede estar vacio")
-    private String description; 
+    private String color;  
+    @NotBlank(message = "name no puede estar vacio")
+    private String name;
+    private String description;
+    private String detail;
     @Max(value = 1, message = "active debe ser menor o igual a 1")
     @Min(value = 0, message = "active debe ser mayor o igual a 0")
     private Integer active;

@@ -23,8 +23,10 @@ public class DocumentStatusService {
     {
         return this.findStatus(statusId)
             .flatMap(status -> {
-                status.setColor(request.getColor());
-                status.setDescription(request.getDescription());      
+                status.setColor(request.getColor());                
+                status.setActive(request.getActive());
+                status.setDetail(request.getDetail());
+                status.setName(request.getName());
                 return dsr.save(status).thenReturn(status);
             })
             .switchIfEmpty(Mono.error(new IllegalArgumentException("No se encuentra el status")))
@@ -36,7 +38,8 @@ public class DocumentStatusService {
     {
         DocumentStatus status = new DocumentStatus();
         status.setColor(ds.getColor());
-        status.setDescription(ds.getDescription());
+        status.setName(ds.getName());
+        status.setDetail(ds.getDetail());
         status.setId(null);
         status.setIsDeleteable(1);
         status.setActive(1);

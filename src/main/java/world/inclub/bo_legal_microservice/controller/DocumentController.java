@@ -72,7 +72,7 @@ public class DocumentController {
     getAllDocuments() 
     {
         return 
-        dr.findAll()
+        du.findAll()
         .collectList()
         .map(documents -> {
             ApiResponse<List<Document>> response = new ApiResponse<>(documents, "Documentos encontrados" );
