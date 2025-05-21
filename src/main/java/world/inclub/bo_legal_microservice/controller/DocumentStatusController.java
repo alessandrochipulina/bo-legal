@@ -79,7 +79,7 @@ public class DocumentStatusController {
         .flatMap(existe -> {
             if (existe) {   
                 log.info("editStatus: Document status exists, updating...");
-                return dsr.update(request, Id)
+                return dsr.update(request, Id)  
                 .map(status -> {
                     ApiResponse<DocumentStatus> response = new ApiResponse<>(status, "Document status updated successfully");
                     log.debug("editStatus: response: {}", response.toString());

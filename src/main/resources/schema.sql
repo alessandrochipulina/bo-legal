@@ -77,9 +77,11 @@ CREATE TABLE "core"."document" (
   user_date varchar NULL,
   user_real_name varchar NULL,
   user_dni varchar NULL, 
-  user_local varchar NULL,  
-  user_local_name varchar NULL,  
-  user_local_type integer NOT NULL DEFAULT 1,  
+  user_local varchar NULL,  -- DIRECCION DE LLEGADA DEL DOCUMENTO -- Default: Direccion de DOMICILIO DEL CLIENTE (CHN)
+  user_local_ubic integer, -- 1: LIMA 2: PROVINCIA 3: EXTRANJERO  
+  user_local_ubic_description varchar NULL, -- 1: LIMA 2: PROVINCIA 3: EXTRANJERO  
+  user_local_type integer NOT NULL DEFAULT 1, -- 1 = DOMICILIO DEL CLIENTE // 2 = CLUB // 3 = SURQUILLO
+  user_local_type_description varchar NULL,  -- DOMICILIO DEL CLIENTE  
   portfolio_name varchar NULL,
   user_panel_id integer NOT NULL DEFAULT 0,
   legalization_type integer DEFAULT 1,
@@ -147,9 +149,15 @@ INSERT INTO "core"."categorie" (categorie_name, categorie_id, categorie_item_nam
 INSERT INTO "core"."categorie" (categorie_name, categorie_id, categorie_item_name, categorie_item_id) VALUES ('DOCUMENT_TYPE_ID', 10, 'SOLICITUD DE LEGALIZACION DE CERTIFICADO', 101);
 INSERT INTO "core"."categorie" (categorie_name, categorie_id, categorie_item_name, categorie_item_id) VALUES ('DOCUMENT_TYPE_ID', 10, 'SOLICITUD DE LEGALIZACION DE CONTRATO', 102);
 INSERT INTO "core"."categorie" (categorie_name, categorie_id, categorie_item_name, categorie_item_id) VALUES ('DOCUMENT_TYPE_ID', 10, 'RECTIFICACION DE LUGAR DE RECOJO', 50);
-INSERT INTO "core"."categorie" (categorie_name, categorie_id, categorie_item_name, categorie_item_id) VALUES ('LOCAL_TYPE', 20, 'LIMA', 1);
-INSERT INTO "core"."categorie" (categorie_name, categorie_id, categorie_item_name, categorie_item_id) VALUES ('LOCAL_TYPE', 20, 'PROVINCIA', 2);
-INSERT INTO "core"."categorie" (categorie_name, categorie_id, categorie_item_name, categorie_item_id) VALUES ('LOCAL_TYPE', 20, 'EXTRANJERO', 3);
+INSERT INTO "core"."categorie" (categorie_name, categorie_id, categorie_item_name, categorie_item_id) VALUES ('LOCAL_CLIENT_UBIC', 20, 'LIMA', 1);
+INSERT INTO "core"."categorie" (categorie_name, categorie_id, categorie_item_name, categorie_item_id) VALUES ('LOCAL_CLIENT_UBIC', 20, 'PROVINCIA', 2);
+INSERT INTO "core"."categorie" (categorie_name, categorie_id, categorie_item_name, categorie_item_id) VALUES ('LOCAL_CLIENT_UBIC', 20, 'EXTRANJERO', 3);
+
+INSERT INTO "core"."categorie" (categorie_name, categorie_id, categorie_item_name, categorie_item_id) VALUES ('LOCAL_TYPE', 50, 'DOMICILIO', 1);
+INSERT INTO "core"."categorie" (categorie_name, categorie_id, categorie_item_name, categorie_item_id) VALUES ('LOCAL_TYPE', 50, 'CLUB RIBERA', 2);
+INSERT INTO "core"."categorie" (categorie_name, categorie_id, categorie_item_name, categorie_item_id) VALUES ('LOCAL_TYPE', 50, 'OF SURQUILLO', 3);
+
+
 INSERT INTO "core"."categorie" (categorie_name, categorie_id, categorie_item_name, categorie_item_id) VALUES ('REJECT_TYPE', 30, 'No cuenta con el importe correcto', 1);
 INSERT INTO "core"."categorie" (categorie_name, categorie_id, categorie_item_name, categorie_item_id) VALUES ('REJECT_TYPE', 30, 'Documento ilegible', 2);
 INSERT INTO "core"."categorie" (categorie_name, categorie_id, categorie_item_name, categorie_item_id) VALUES ('REJECT_TYPE', 30, 'No corresponde al tramite solicitado', 3);
@@ -163,7 +171,7 @@ r.local_type, c.categorie_item_name as local_name, r.price, r.status
 FROM "core"."rates" r 
 INNER JOIN "core"."categorie" a ON r.legalization_type = a.categorie_item_id AND a.categorie_name = 'LEGALIZATION_TYPE'
 INNER JOIN "core"."categorie" b ON r.document_type_id = b.categorie_item_id AND b.categorie_name = 'DOCUMENT_TYPE_ID'
-INNER JOIN "core"."categorie" c ON r.local_type = c.categorie_item_id AND c.categorie_name = 'LOCAL_TYPE'
+INNER JOIN "core"."categorie" c ON r.local_type = c.categorie_item_id AND c.categorie_name = 'LOCAL_CLIENT_UBIC'
 ORDER BY legalization_type, document_type_id, local_type;
 
 CREATE TABLE "core"."document_status_client_description" (

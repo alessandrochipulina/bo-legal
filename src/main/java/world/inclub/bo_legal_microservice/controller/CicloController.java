@@ -1,8 +1,6 @@
 package world.inclub.bo_legal_microservice.controller;
 
 import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,8 +23,11 @@ import world.inclub.bo_legal_microservice.domain.request.ApiResponse;
 @Slf4j
 public class CicloController {
 
-    @Autowired
-    private CicloService cr;
+    private final CicloService cr;
+
+    CicloController(CicloService cr) {
+        this.cr = cr;
+    }
 
     @GetMapping("/all")
     @Validated
@@ -44,7 +45,7 @@ public class CicloController {
         })
         .switchIfEmpty(Mono.error(new IllegalArgumentException("No existen ciclos registradas")))
         .onErrorResume(e -> Mono.error(new IllegalArgumentException(e.getMessage())))
-        .doOnError(error -> { log.error("getAllCiclo: error: {}", error.getMessage(), error); });        
+        .doOnError(error -> log.error("getAllCiclo: error: {}", error.getMessage(), error) );        
     }
 
     @GetMapping("/{Id}")
@@ -62,7 +63,7 @@ public class CicloController {
         })
         .switchIfEmpty(Mono.error(new IllegalArgumentException("El ID del ciclo no existe")))
         .onErrorResume(e -> Mono.error(new IllegalArgumentException(e.getMessage())))
-        .doOnError(error -> { log.error("getCicloId: error: {}", error.getMessage(), error); });
+        .doOnError(error -> log.error("getCicloId: error: {}", error.getMessage(), error) );
     }    
 
     @PostMapping("/add")
@@ -78,7 +79,7 @@ public class CicloController {
         })
         .switchIfEmpty(Mono.error(new IllegalArgumentException("El Ciclo no se puede registrar")))
         .onErrorResume(e -> Mono.error(new IllegalArgumentException(e.getMessage())))
-        .doOnError(error -> { log.error("getCicloId: error: {}", error.getMessage(), error); });
+        .doOnError(error -> log.error("addCiclo: error: {}", error.getMessage(), error) );
     }
 
     @PostMapping("/edit/{Id}")
@@ -95,7 +96,7 @@ public class CicloController {
         })
         .switchIfEmpty(Mono.error(new IllegalArgumentException("El Ciclo no se puede registrar")))
         .onErrorResume(e -> Mono.error(new IllegalArgumentException(e.getMessage())))
-        .doOnError(error -> { log.error("getCicloId: error: {}", error.getMessage(), error); });
+        .doOnError(error -> log.error("updateCiclo: error: {}", error.getMessage(), error) );
     }
 
     @PostMapping("/delete/{Id}")
@@ -112,7 +113,7 @@ public class CicloController {
         })
         .switchIfEmpty(Mono.just(ResponseEntity.ok(new ApiResponse<Ciclo>(null, "El Ciclo fue eliminado correctamente"))))
         .onErrorResume(e -> Mono.error(new IllegalArgumentException(e.getMessage())))
-        .doOnError(error -> { log.error("getCicloId: error: {}", error.getMessage(), error); });
+        .doOnError(error -> log.error("deleteCiclo: error: {}", error.getMessage(), error) );
     }
     
 }
