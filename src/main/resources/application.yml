@@ -1,7 +1,8 @@
 spring:
-  application.name: bo-legal-microservice
-  config.import: optional:configserver:${CONFIG_SERVER_URL:http://bosrvcfg.inclub.world/}
-
+  application.name: bo-legal-microservice  
+  profiles:
+    active:
+    - dev
 app:
   status:
     pendiente: 1
